@@ -4,6 +4,10 @@
 #include <shellapi.h>
 #include <stdio.h>
 
+#ifndef PROJECT_NAME
+#define PROJECT_NAME "Game2D"
+#endif
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
 	if (!g2d_init())
@@ -11,7 +15,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		return 1;
 	}
 
-	if (!window_create(hInstance, 600, 600, "Game"))
+	if (!window_create(hInstance, 600, 600, PROJECT_NAME))
 	{
 		return 1;
 	}

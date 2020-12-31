@@ -3,4 +3,4 @@ mkdir build
 cd build
 START /WAIT cmake --build . --config Debug
 cd ..
-build\Debug\game.exe
+build\Game\Debug\game.exe
