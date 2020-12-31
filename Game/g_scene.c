@@ -1,4 +1,4 @@
-#include "game.h"
+#include "headers/game.h"
 
 void game_scene_add_object_rect(struct Vec2f vf, float size)
 {

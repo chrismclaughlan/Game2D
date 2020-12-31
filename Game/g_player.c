@@ -1,4 +1,4 @@
-#include "game.h"
+#include "headers/game.h"
 #include <math.h>
 
 bool is_inside_polygon(struct Vec2f point, struct Object object)

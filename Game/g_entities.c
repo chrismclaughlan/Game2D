@@ -1,4 +1,4 @@
-#include "game.h"
+#include "headers/game.h"
 #include <math.h>
 
 void game_entities_update_positions(double dt)

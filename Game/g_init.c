@@ -1,5 +1,5 @@
 //#include "../utils.h"
-#include "game.h"
+#include "headers/game.h"
 #include <stdlib.h>
 
 #define PROCESS_LINE(l, c, ax, ay, bx, by)\
@@ -26,13 +26,13 @@ void game_init()
 
 
 	/* Load sprite images */
-	sprite_image_soldier = window_sprite_image_load(TEXTURE_PLAYER);
+	sprite_image_soldier = window_sprite_image_load(RESOURCE_PLAYER);
 	if (!sprite_image_soldier)
 	{
 		Sleep(5000);
 		exit(1);
 	}
-	sprite_image_enemy = window_sprite_image_load(TEXTURE_ENEMY);
+	sprite_image_enemy = window_sprite_image_load(RESOURCE_ENEMY);
 	if (!sprite_image_enemy)
 	{
 		Sleep(5000);
