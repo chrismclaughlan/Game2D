@@ -1,4 +1,5 @@
-#include "headers/game.h"
+#include "headers/g_utils.h"
+
 
 struct Vec2f game_utils_get_vector_up(void)
 {

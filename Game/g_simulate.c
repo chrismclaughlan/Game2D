@@ -1,4 +1,8 @@
-#include "headers/game.h"
+#include "../headers/game.h"
+#include "headers/g_internal.h"
+#include "headers/g_scene.h"
+#include "headers/g_player.h"
+#include "headers/g_utils.h"
 #include <math.h>
 #include <stdlib.h>
 
@@ -20,7 +24,7 @@ static void game_bullet_holes_render()
 
 void game_simulate()
 {
-	const float dt = g2d_window->fps_last_dt;
+	const float dt = gp_g2d_window->fps_last_dt;
 	uint32 colour_background = SOLID_COLOUR(0x000000);
 	uint32 colour_enemy = SOLID_COLOUR(0xff0000);
 
@@ -45,21 +49,27 @@ void game_simulate()
 		else if (PRESSED(BUTTON_LMOUSE))
 		{
 			/* does this intersect with line circle? */
-			for (int i = 0; i < scene_objects_size; i++)
+			for (struct Object* object = scene_objects_head; object != NULL; object = object->next)
 			{
-				for (int j = 0; j < scene_objects[i].lines_size; j++)
+				for (struct Line* line = object->lines_start; line != NULL; line = line->next)
 				{
-					if (game_collision_is_in_circle(mouse_pos, scene_objects[i].lines[j].points[0], BUILD_SELECTION_CIRCLE_RADIUS))
+					if (game_collision_is_in_circle(mouse_pos, line->start, BUILD_SELECTION_CIRCLE_RADIUS))
 					{
 						if (PRESSED(BUTTON_LMOUSE))
 						{
 							//scene_objects[i].lines[j].points[0] = pos;
 							//scene_objects[i].lines[(j - 1 < 0) ? scene_objects[i].lines_size - 1 : j - 1].points[1] = pos;
-							selection_pos_1 = &scene_objects[i].lines[j].points[0];
-							selection_pos_2 = &scene_objects[i].lines[(j - 1 < 0) ? scene_objects[i].lines_size - 1 : j - 1].points[1];
+							selection_pos_1 = &line->start;
+							if (line->prev)
+							{
+								selection_pos_2 = &line->prev->end;
+							}
+							else
+							{
+								selection_pos_2 = &object->lines_end->end;
+							}
 						}
 					}
-
 				}
 			}
 		}
@@ -67,28 +77,28 @@ void game_simulate()
 	case GM_PLAY:
 	{
 		/* Player aim */
-		player.aim = mouse_pos;
+		player->aim = mouse_pos;
 
 		/* Player movement */
-		struct Vec2f vf_before = player.sprite.pos;
+		struct Vec2f vf_before = player->sprite->pos;
 		const double multiplier = 1.0f;
-		if (IS_DOWN(BUTTON_W) || IS_DOWN(BUTTON_UP))	player.sprite.pos.y += multiplier * dt;
-		if (IS_DOWN(BUTTON_A) || IS_DOWN(BUTTON_LEFT))	player.sprite.pos.x -= multiplier * dt;
-		if (IS_DOWN(BUTTON_S) || IS_DOWN(BUTTON_DOWN))	player.sprite.pos.y -= multiplier * dt;
-		if (IS_DOWN(BUTTON_D) || IS_DOWN(BUTTON_RIGHT)) player.sprite.pos.x += multiplier * dt;
+		if (IS_DOWN(BUTTON_W) || IS_DOWN(BUTTON_UP))	player->sprite->pos.y += multiplier * dt;
+		if (IS_DOWN(BUTTON_A) || IS_DOWN(BUTTON_LEFT))	player->sprite->pos.x -= multiplier * dt;
+		if (IS_DOWN(BUTTON_S) || IS_DOWN(BUTTON_DOWN))	player->sprite->pos.y -= multiplier * dt;
+		if (IS_DOWN(BUTTON_D) || IS_DOWN(BUTTON_RIGHT)) player->sprite->pos.x += multiplier * dt;
 
-		clampv(player.sprite.pos, -1.0f, +1.0f);
+		clampv(player->sprite->pos, -1.0f, +1.0f);
 
-		for (int i = 0; i < scene_objects_size; i++)
+		for (struct Object* object = scene_objects_head; object != NULL; object = object->next)
 		{
-			if (is_inside_polygon(player.sprite.pos, scene_objects[i]))
+			if (game_collision_is_inside_polygon(player->sprite->pos, *object))  /* TODO pass pointer */
 			{
-				player.sprite.pos = vf_before;
+				player->sprite->pos = vf_before;
 				break;
 			}
 		}
 
-		player.sprite.angle = vector_angle(game_utils_get_vector_up(), vector_subtract(player.aim, player.sprite.pos));
+		player->sprite->angle = vector_angle(game_utils_get_vector_up(), vector_subtract(player->aim, player->sprite->pos));
 
 		/* Enemies movement */
 		game_entities_update_positions(dt);
@@ -100,16 +110,15 @@ void game_simulate()
 	/* - - - - - - - - Simulate - - - - - - - - */
 
 	/* Scene collisions */
-	struct Vec2f* vf_origin = &player.sprite.pos;
-	struct Object* starting_object = &scene_boundary;
+	struct Vec2f* vf_origin = &player->sprite->pos;
 	scene_objects_intersected_queue_index = 0;
-	game_collision_update_los(vf_origin, starting_object);
+	game_collision_update_los(vf_origin, scene_objects_head);
 
 	
 	/* Player aim scene collisions */
 	struct Vec2f vf_player_aim_intersect;
-	if (!collision_lines(&player.sprite.pos, &player.aim, starting_object, &vf_player_aim_intersect))
-		vf_player_aim_intersect = player.aim;
+	if (!game_collision_lines(&player->sprite->pos, &player->aim, scene_objects_head, &vf_player_aim_intersect))
+		vf_player_aim_intersect = player->aim;
 
 
 	switch (game_mode)
@@ -125,7 +134,7 @@ void game_simulate()
 	{
 		if (PRESSED(BUTTON_LMOUSE))
 		{
-			double d_ = vector_distance(player.aim, vf_player_aim_intersect);
+			double d_ = vector_distance(player->aim, vf_player_aim_intersect);
 			if (d_ == 0.0f)  /* test if aim blocked by object */
 			{
 				game_entities_update_player_interactions(&vf_player_aim_intersect);
@@ -143,13 +152,19 @@ void game_simulate()
 
 	game_render_los(vf_origin);
 
-	game_render_object(&scene_boundary);
-	game_render_object(&scene_objects[0]);
-	game_render_object(&scene_objects[1]);
+
+
+	for (struct Object* object = scene_objects_head; object != NULL; object = object->next)
+	{
+		game_render_object(object);
+	}
+	//game_render_object(&scene_boundary);
+	//game_render_object(&scene_objects[0]);
+	//game_render_object(&scene_objects[1]);
 
 	game_render_player(vf_player_aim_intersect);
 
-	game_entities_render(starting_object);
+	game_entities_render(scene_objects_head);
 	game_bullet_holes_render();
 
 	switch (game_mode)
@@ -158,11 +173,11 @@ void game_simulate()
 	{
 		/* does this intersect with line circle? */
 		struct Vec2f pos = window_input_mouse_get_screen_coords();
-		for (int i = 0; i < scene_objects_size; i++)
+		for (struct Object* object = scene_objects_head; object != NULL; object = object->next)
 		{
-			for (int j = 0; j < scene_objects[i].lines_size; j++)
+			for (struct Line* line = object->lines_start; line != NULL; line = line->next)
 			{
-				render_draw_circle_f(SOLID_COLOUR(0xcccccc), scene_objects[i].lines[j].points[0],
+				render_draw_circle_f(SOLID_COLOUR(0xcccccc), line->start,
 					BUILD_SELECTION_CIRCLE_RADIUS, BUILD_SELECTION_CIRCLE_RADIUS);
 			}
 		}
@@ -174,4 +189,14 @@ void game_simulate()
 		}
 	} break;
 	}
+
+	LOG_DEBUG("\n")
+	for (struct Object* object = scene_objects_head; object != NULL; object = object->next)
+	{
+		for (struct Line* line = object->lines_start; line != NULL; line = line->next)
+		{
+			LOG_DEBUG("start x:%f y:%f | end x:%f y:%f\n", line->start.x, line->start.y, line->end.x, line->end.y);
+		}
+	}
+
 }

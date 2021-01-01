@@ -1,27 +1,29 @@
-#include "headers/game.h"
+#include "headers/g_render.h"
+#include "headers/g_scene.h"
+#include "headers/g_player.h"
 #include <stdlib.h>
 #include <math.h>
 
 inline void game_render_line(struct Line* line)
 {
-	render_draw_line_f(line->colour, line->points[0], line->points[1], false);
+	render_draw_line_f(line->colour, line->start, line->end, false);
 }
 
 void game_render_object(struct Object* object)
 {
-	for (int i = 0; i < object->lines_size; i++)
+	for (struct Line* line = object->lines_start; line != NULL; line = line->next)
 	{
-		game_render_line(&object->lines[i]);
+		game_render_line(line);
 	}
 }
 
 void game_render_player(const struct Vec2f vf_player_aim_intersect)
 {
-	//render_draw_circle_f(SOLID_COLOUR(0x0000ff), player.sprite.pos, PLAYER_SIZE, PLAYER_SIZE);
+	//render_draw_circle_f(SOLID_COLOUR(0x0000ff), player->sprite->pos, PLAYER_SIZE, PLAYER_SIZE);
 
-	render_draw_line_f(SOLID_COLOUR(0xff00ff), player.sprite.pos, vf_player_aim_intersect, false);
+	render_draw_line_f(SOLID_COLOUR(0xff00ff), player->sprite->pos, vf_player_aim_intersect, false);
 
-	render_draw_sprite(player.sprite);
+	render_draw_sprite(player->sprite);
 }
 
 void game_render_los(const struct Vec2f* vf_origin)
@@ -33,13 +35,13 @@ void game_render_los(const struct Vec2f* vf_origin)
 	qsort(scene_objects_intersected_queue, scene_objects_intersected_queue_index, sizeof(struct Vec3f), vector3f_cmp_z);
 
 	//struct Vec2f fov_1, fov_2;
-	//double rad = player.sprite.angle + player.sprite.angle_offset;
+	//double rad = player->sprite->angle + player->sprite->angle_offset;
 	//fov_1.x = cos(rad - 0.5f);
 	//fov_1.y = sin(rad - 0.5f);
 	//fov_2.x = cos(rad + 0.5f);
 	//fov_2.y = sin(rad + 0.5f);
-	//fov_1 = vector_add(player.sprite.pos, fov_1);
-	//fov_2 = vector_add(player.sprite.pos, fov_2);
+	//fov_1 = vector_add(player->sprite->pos, fov_1);
+	//fov_2 = vector_add(player->sprite->pos, fov_2);
 
 	struct Vec2f vf0, vf1;
 	for (int i = 0, j = 1; i < scene_objects_intersected_queue_index; i++, j++)

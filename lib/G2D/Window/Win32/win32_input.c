@@ -1,4 +1,5 @@
-#include "../headers/win32.h"
+#include "../headers/w_win32.h"
+#include "headers/win32_internal.h"
 
 void window_input()
 {

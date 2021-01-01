@@ -4,14 +4,14 @@
 
 static void render_draw_rect_pixels(uint32 colour, uint x0, uint y0, uint x1, uint y1)
 {
-	x0 = clamp(x0, 0, g2d_window->width);
-	x1 = clamp(x1, 0, g2d_window->width);
-	y0 = clamp(y0, 0, g2d_window->height);
-	y1 = clamp(y1, 0, g2d_window->height);
+	x0 = clamp(x0, 0, gp_g2d_window->width);
+	x1 = clamp(x1, 0, gp_g2d_window->width);
+	y0 = clamp(y0, 0, gp_g2d_window->height);
+	y1 = clamp(y1, 0, gp_g2d_window->height);
 
 	for (uint y = y0; y < y1; y++)
 	{
-		uint32* pixel = (g2d_window->pbuffer + x0) + (y * g2d_window->width);
+		uint32* pixel = (gp_g2d_window->p_buffer + x0) + (y * gp_g2d_window->width);
 		for (uint x = x0; x < x1; x++)
 		{
 			*pixel++ = colour;

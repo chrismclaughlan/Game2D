@@ -1,15 +1,15 @@
-#include "../headers/win32.h"
-#include "../../headers/render.h"
+#include "../headers/w_win32.h"
+#include "headers/win32_internal.h"
 
 void window_input_mouse_event_move(int x, int y)
 {
-	g2d_input->mouse_pos.x = x;
-	g2d_input->mouse_pos.y = y;
+	gp_g2d_input->mouse_pos.x = x;
+	gp_g2d_input->mouse_pos.y = y;
 }
 
 void window_input_mouse_event_scroll(int delta)
 {
-	g2d_input->mouse_scroll += delta;
+	gp_g2d_input->mouse_scroll += delta;
 }
 
 void window_input_mouse_event_click(uint vk_code, bool is_down)
@@ -27,20 +27,20 @@ void window_input_mouse_event_click(uint vk_code, bool is_down)
 
 void window_input_mouse_event_window_enter()
 {
-	g2d_input->mouse_in_window = true;
+	gp_g2d_input->mouse_in_window = true;
 }
 
 void window_input_mouse_event_window_leave()
 {
-	g2d_input->mouse_in_window = false;
+	gp_g2d_input->mouse_in_window = false;
 }
 
 bool window_input_mouse_is_within_rect(int x0, int y0, int x1, int y1)
 {
-	return (g2d_input->mouse_pos.x > x0 && g2d_input->mouse_pos.y > y0 && g2d_input->mouse_pos.x <= x1 && g2d_input->mouse_pos.y <= y1);
+	return (gp_g2d_input->mouse_pos.x > x0 && gp_g2d_input->mouse_pos.y > y0 && gp_g2d_input->mouse_pos.x <= x1 && gp_g2d_input->mouse_pos.y <= y1);
 }
 
 struct Vec2f window_input_mouse_get_screen_coords(void)
 {
-	return render_px_to_screen(g2d_input->mouse_pos);
+	return render_px_to_screen(gp_g2d_input->mouse_pos);
 }

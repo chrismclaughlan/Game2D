@@ -1,11 +1,12 @@
-#include "../headers/win32.h"
+#include "../headers/w_win32.h"
+#include "headers/win32_internal.h"
 
 void window_input_keyboard_reset()
 {
 	for (int i = 0; i < BUTTON_COUNT; i++)
 	{
-		g2d_input->buttons[i].is_down = false;
-		g2d_input->buttons[i].changed = false;
+		gp_g2d_input->buttons[i].is_down = false;
+		gp_g2d_input->buttons[i].changed = false;
 	}
 }
 
@@ -13,7 +14,7 @@ void window_input_keyboard_reset_changed()
 {
 	for (int i = 0; i < BUTTON_COUNT; i++)
 	{
-		g2d_input->buttons[i].changed = false;
+		gp_g2d_input->buttons[i].changed = false;
 	}
 }
 
@@ -54,25 +55,25 @@ void window_input_keyboard_event_type(char vk_code)
 	{
 	case VK_BACK:
 	{
-		if (g2d_input->type_index > 0)
+		if (gp_g2d_input->type_index > 0)
 		{
-			g2d_input->type_buffer[--g2d_input->type_index] = 0;
+			gp_g2d_input->type_buffer[--gp_g2d_input->type_index] = 0;
 		}
 	} break;
 	case VK_RETURN:
 	{
 		/* Do something with string */
-		memset(g2d_input->type_buffer, 0, sizeof(g2d_input->type_buffer));
-		g2d_input->type_index = 0;
+		memset(gp_g2d_input->type_buffer, 0, sizeof(gp_g2d_input->type_buffer));
+		gp_g2d_input->type_index = 0;
 	} break;
 	default:
 	{
 		VkKeyScanExA(vk_code, GetKeyboardLayout(0));
-		g2d_input->type_buffer[g2d_input->type_index++] = vk_code;
+		gp_g2d_input->type_buffer[gp_g2d_input->type_index++] = vk_code;
 	} break;
 	}
 
-	g2d_input->type_index = clamp(g2d_input->type_index, 0, sizeof(g2d_input->type_buffer));
+	gp_g2d_input->type_index = clamp(gp_g2d_input->type_index, 0, sizeof(gp_g2d_input->type_buffer));
 
-	LOG_DEBUG("type_buffer [i=%d]: %s\n", g2d_input->type_index, g2d_input->type_buffer);
+	LOG_DEBUG("type_buffer [i=%d]: %s\n", gp_g2d_input->type_index, gp_g2d_input->type_buffer);
 }

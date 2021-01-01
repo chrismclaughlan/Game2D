@@ -1,5 +1,5 @@
 #include "lib/G2D/headers/g2d.h"
-#include "Game/headers/game.h"
+#include "headers/game.h"
 #include <stdlib.h>
 #include <shellapi.h>
 #include <stdio.h>

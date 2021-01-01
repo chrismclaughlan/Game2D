@@ -12,22 +12,22 @@ set(G2D_SOURCE_FILES
 
 	Utils/utils.c
 	
-	Window/Win_32/w_callback.c
-	Window/Win_32/w_create.c
-	Window/Win_32/w_fps.c
-	Window/Win_32/w_input.c
-	Window/Win_32/w_input_keyboard.c
-	Window/Win_32/w_input_mouse.c
+	Window/Win32/win32_callback.c
+	Window/Win32/win32_create.c
+	Window/Win32/win32_fps.c
+	Window/Win32/win32_input.c
+	Window/Win32/win32_input_keyboard.c
+	Window/Win32/win32_input_mouse.c
 	#Window/w_log.c
-	Window/Win_32/w_render.c
-	Window/Win_32/w_sprite.c
+	Window/Win32/win32_render.c
+	Window/Win32/win32_sprite.c
 )
 
 add_library(G2D_lib STATIC ${G2D_SOURCE_FILES})
 
-target_include_directories(G2D_lib PUBLIC 
-	${CMAKE_CURRENT_SOURCE_DIR}/headers 
-	${CMAKE_CURRENT_SOURCE_DIR}/Render/headers
-	${CMAKE_CURRENT_SOURCE_DIR}/Utils/headers
-	${CMAKE_CURRENT_SOURCE_DIR}/Win_32/headers
-)
+target_include_directories(G2D_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/headers/g2d.h)
+#${CMAKE_CURRENT_SOURCE_DIR}/headers 
+#${CMAKE_CURRENT_SOURCE_DIR}/Render/headers
+#${CMAKE_CURRENT_SOURCE_DIR}/Utils/headers
+#${CMAKE_CURRENT_SOURCE_DIR}/Win32/headers
+#)

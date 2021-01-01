@@ -3,20 +3,6 @@
 
 #include <stdint.h>
 
-struct Vec2
-{
-	int x; int y;
-};
-
-struct Vec2f
-{
-	double x; double y;
-};
-
-struct Vec3f
-{
-	double x; double y; double z;
-};
 
 /* signed */
 typedef int8_t int8;
@@ -41,6 +27,22 @@ typedef uint32_t uint32;
 //#define min(a,b) (a < b ? a : b)
 
 #define PI 3.14159f
+
+
+struct Vec2
+{
+	int x; int y;
+};
+
+struct Vec2f
+{
+	double x; double y;
+};
+
+struct Vec3f
+{
+	double x; double y; double z;
+};
 
 extern inline float vector_magnitude(struct Vec2f vf);
 extern inline struct Vec2f vector_add(struct Vec2f vf0, struct Vec2f vf1);

@@ -1,4 +1,4 @@
-#include "../headers/win32.h"
+#include "../headers/w_win32.h"
 #include <stdlib.h>
 #include <tchar.h>
 

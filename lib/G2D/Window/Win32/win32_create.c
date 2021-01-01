@@ -1,4 +1,5 @@
-#include "../headers/win32.h"
+#include "../headers/w_win32.h"
+#include "headers/win32_internal.h"
 
 #include <stdio.h>
 #include <hidusage.h>
@@ -59,7 +60,7 @@ bool window_create(HINSTANCE hInstance, uint window_width, uint window_height, c
 	//{
 	//	/* Error */
 	//}
-	errno_t err = freopen_s(&g2d_window->fwindow_console, "CON", "w", stderr);
+	errno_t err = freopen_s(&gp_g2d_window->f_window_console, "CON", "w", stderr);
 	if (err != 0)
 	{
 		/* TODO: if not fatal just ignore and continue as if not debug mode */
@@ -98,7 +99,7 @@ bool window_create(HINSTANCE hInstance, uint window_width, uint window_height, c
 		return false;
 	}
 
-	g2d_window->hwnd = CreateWindowEx(
+	gp_g2d_window->hwnd = CreateWindowEx(
 		0,                                  // Optional window styles.
 		window_class.lpszClassName,         // Window class
 		window_name,                      // Window text
@@ -112,7 +113,7 @@ bool window_create(HINSTANCE hInstance, uint window_width, uint window_height, c
 		hInstance,		// Instance handle
 		NULL			// Additional application data
 	);
-	if (g2d_window->hwnd == NULL)
+	if (gp_g2d_window->hwnd == NULL)
 	{
 		LOG_ERROR("CreateWindowEx(): %s\n", (char*)GetLastError());
 		return false;
@@ -123,12 +124,12 @@ bool window_create(HINSTANCE hInstance, uint window_width, uint window_height, c
 	Rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
 	Rid[0].usUsage = HID_USAGE_GENERIC_MOUSE;
 	Rid[0].dwFlags = RIDEV_INPUTSINK;
-	Rid[0].hwndTarget = g2d_window->hwnd;
+	Rid[0].hwndTarget = gp_g2d_window->hwnd;
 	RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
 
-	(void) ShowWindow(g2d_window->hwnd, SW_SHOWDEFAULT);
+	(void) ShowWindow(gp_g2d_window->hwnd, SW_SHOWDEFAULT);
 
-	if (!(g2d_window->hdc = GetDC(g2d_window->hwnd)))
+	if (!(gp_g2d_window->hdc = GetDC(gp_g2d_window->hwnd)))
 	{
 		LOG_ERROR("GetDC(): %s\n", (char*)GetLastError());
 		return false;

@@ -2,11 +2,11 @@
 
 void render_clear_screen(uint32 colour)
 {
-	uint32* pixel = g2d_window->pbuffer;
+	uint32* pixel = gp_g2d_window->p_buffer;
 
-	for (uint y = 0; y < g2d_window->height; y++)
+	for (uint y = 0; y < gp_g2d_window->height; y++)
 	{
-		for (uint x = 0; x < g2d_window->width; x++)
+		for (uint x = 0; x < gp_g2d_window->width; x++)
 		{
 			*pixel++ = colour;
 		}
@@ -15,22 +15,22 @@ void render_clear_screen(uint32 colour)
 
 inline float render_coord_translate_from_i_x(int i)
 {
-	return ((float)i / (float)g2d_window->width) * 2.0f;
+	return ((float)i / (float)gp_g2d_window->width) * 2.0f;
 }
 
 inline float render_coord_translate_from_i_y(int i)
 {
-	return ((float)i / (float)g2d_window->height) * 2.0f;
+	return ((float)i / (float)gp_g2d_window->height) * 2.0f;
 }
 
 inline int render_coord_translate_from_f_x(float f)
 {
-	return (f / 2.0f) * (float)g2d_window->width;
+	return (f / 2.0f) * (float)gp_g2d_window->width;
 }
 
 inline int render_coord_translate_from_f_y(float f)
 {
-	return (f / 2.0f) * (float)g2d_window->height;
+	return (f / 2.0f) * (float)gp_g2d_window->height;
 }
 
 struct Vec2 render_screen_to_px(struct Vec2f vf)

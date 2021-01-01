@@ -10,11 +10,14 @@ set(GAME_SOURCE_FILES
 	g_render.c
     g_scene.c
     g_simulate.c
+    g_sprite.c
     g_utils.c
 )
 
+add_definitions(-DPROJECT_NAME="${PROJECT_NAME}")
 add_definitions(-DRESOURCES_DIR="../resources/")
 FILE(COPY resources DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
 
 add_executable(game WIN32 ${GAME_SOURCE_FILES})
 target_link_libraries(game PUBLIC G2D_lib)

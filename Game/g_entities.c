@@ -1,58 +1,96 @@
-#include "headers/game.h"
+#include "headers/g_entities.h"
+#include "headers/g_player.h"
+#include "headers/g_scene.h"
 #include <math.h>
+#include <stdlib.h>
+
+struct Enemy* 
+game_entities_enemy_create(float x, float y, float scale, float speed, int hp)
+{
+	struct Enemy* enemy = malloc(sizeof(struct Enemy));
+	if (!enemy)
+	{
+
+		return NULL;
+	}
+	(void)memset(enemy, 0, sizeof(enemy));
+
+	enemy->sprite = game_sprite_create(sprite_image_enemy, x, y, scale);
+	if (!enemy->sprite)
+	{
+
+		(void)free(enemy);
+		return NULL;
+	}
+
+	enemy->body.pos = enemy->sprite->pos;
+	enemy->body.radius = ENEMY_SIZE;
+	enemy->speed = speed;
+	enemy->hp = hp;
+	enemy->next = NULL;
+
+	return enemy;
+}
+
+void 
+game_entities_enemy_destroy(struct Enemy* enemy)
+{
+	game_sprite_destroy(enemy->sprite);
+	(void)free(enemy);
+}
 
 void game_entities_update_positions(double dt)
 {
-	for (int i = 0; i < enemies_size; i++)
+	for (struct Enemy* enemy = enemy_head; enemy != NULL; enemy = enemy->next)
 	{
-		if (enemies[i].hp <= 0) continue;
+		if (enemy->hp <= 0) continue;
 
-		struct Vec2f vf_before = enemies[i].body.pos;
+		struct Vec2f vf_before = enemy->sprite->pos;
 
 		struct Vec2f vf_difference;
-		vf_difference = vector_subtract(player.sprite.pos, enemies[i].body.pos);
+		vf_difference = vector_subtract(player->sprite->pos, enemy->sprite->pos);
 		vf_difference = vector_normalise(vf_difference);
-		if (vector_distance(enemies[i].body.pos, player.sprite.pos) > PLAYER_SIZE)
+		if (vector_distance(enemy->sprite->pos, player->sprite->pos) > PLAYER_SIZE)
 		{
-			enemies[i].body.pos.x += vf_difference.x * enemies[i].speed * dt;
-			enemies[i].body.pos.y += vf_difference.y * enemies[i].speed * dt;
+			enemy->sprite->pos.x += vf_difference.x * enemy->speed * dt;
+			enemy->sprite->pos.y += vf_difference.y * enemy->speed * dt;
 		}
 		
-		clampv(enemies[i].body.pos, -1.0f, +1.0f);
+		clampv(enemy->sprite->pos, -1.0f, +1.0f);
 
 		/* Check scene objects collisions */
-		for (int j = 0; j < scene_objects_size; j++)
+		for (struct Object* object = scene_objects_head; object != NULL; object = object->next)
 		{
-			if (is_inside_polygon(enemies[i].body.pos, scene_objects[j]))
+			if (game_collision_is_inside_polygon(enemy->sprite->pos, *object))  /* TODO pass pointer */
 			{
-				enemies[i].body.pos = vf_before;
+				enemy->body.pos = vf_before;
 				break;
 			}
 		}
 
-		enemies[i].sprite.pos.x = enemies[i].body.pos.x;
-		enemies[i].sprite.pos.y = enemies[i].body.pos.y;
-		enemies[i].sprite.angle = atan2(0.0f, 1.0f) - atan2(vf_difference.x, vf_difference.y);
+		enemy->body.pos.x = enemy->sprite->pos.x;
+		enemy->body.pos.y = enemy->sprite->pos.y;
+		enemy->sprite->angle = atan2(0.0f, 1.0f) - atan2(vf_difference.x, vf_difference.y);
 	}
 }
 
 void game_entities_update_player_interactions(
 	const struct Vec2f const* vf_player_aim_intersect)
 {
-	for (int i = 0; i < enemies_size; i++)
+	for (struct Enemy* enemy = enemy_head; enemy != NULL; enemy = enemy->next)
 	{
-		if (enemies[i].hp <= 0) continue;
+		if (enemy->hp <= 0) continue;
 
 		double distance;
 		struct Vec2f vf_circle_intersect_0, vf_circle_intersect_1;
-		if (game_collision_circle_and_line(enemies[i].body, player.sprite.pos,
+		if (game_collision_circle_and_line(enemy->body, player->sprite->pos,
 			*vf_player_aim_intersect, &distance, &vf_circle_intersect_0,
 			&vf_circle_intersect_1))
 		{
 			float chance_to_hit = 0.0f;
-			double d0 = vector_distance(player.sprite.pos, *vf_player_aim_intersect);
-			double d1 = vector_distance(player.sprite.pos, vf_circle_intersect_0);
-			double d2 = vector_distance(player.sprite.pos, vf_circle_intersect_1);
+			double d0 = vector_distance(player->sprite->pos, *vf_player_aim_intersect);
+			double d1 = vector_distance(player->sprite->pos, vf_circle_intersect_0);
+			double d2 = vector_distance(player->sprite->pos, vf_circle_intersect_1);
 			if (d0 < d1)
 			{
 				/* miss -> vf_player_aim_intersect INFRONT of target */
@@ -71,29 +109,25 @@ void game_entities_update_player_interactions(
 
 			chance_to_hit = clamp(chance_to_hit, 0.0f, 1.0f);
 			LOG_DEBUG("chance to hit: %f\n", chance_to_hit);
-			enemies[i].hp -= enemies[i].hp * chance_to_hit;
+			enemy->hp -= enemy->hp * chance_to_hit;
 		}
 	}
 }
 
 void game_entities_render(const struct Object const* starting_object)
 {
-	for (int i = 0; i < enemies_size; i++)
+	for (struct Enemy* enemy = enemy_head; enemy != NULL; enemy = enemy->next)
 	{
 		uint32 colour = SOLID_COLOUR(0xff0000);
-		if (enemies[i].hp <= 0) colour = SOLID_COLOUR(0x0);
+		if (enemy->hp <= 0) colour = SOLID_COLOUR(0x0);
 
-		//for (int i = 0; i < enemies_size; i++)
-		//{
-			struct Vec2f intersect;
-			if (!collision_lines(&player.sprite.pos, &enemies[i].body.pos, starting_object, &intersect))
-			{
-				//render_draw_circle_f(colour, enemies[i].body.pos,
-				//	enemies[i].body.radius, enemies[i].body.radius);
+		struct Vec2f intersect;
+		if (!game_collision_lines(&player->sprite->pos, &enemy->body.pos, starting_object, &intersect))
+		{
+			//render_draw_circle_f(colour, enemy->body.pos,
+			//	enemy->body.radius, enemy->body.radius);
 
-				render_draw_sprite(enemies[i].sprite);
-			}
-			//render_draw_sprite(enemies[i].sprite);
-		//}
+			render_draw_sprite(enemy->sprite);
+		}
 	}
 }

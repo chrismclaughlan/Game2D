@@ -1,4 +1,6 @@
-#include "headers/game.h"
+#include "headers/g_collisions.h"
+#include "headers/g_scene.h"
+#include "headers/g_entities.h"
 #include <math.h>
 
 /**
@@ -38,7 +40,7 @@ static inline collision_lines_using_angle(const struct Vec2f* vf_origin, const d
 	vf_ray.x = sin(angle) * 10.0f;
 	vf_ray = vector_add(vf_ray, *vf_origin);
 
-	return collision_lines(vf_origin, &vf_ray, starting_object, vf_intersect);
+	return game_collision_lines(vf_origin, &vf_ray, starting_object, vf_intersect);
 }
 
 static void collision_with_scene(const struct Vec2f* vf_origin, const struct Vec2f* vf_target,
@@ -85,7 +87,7 @@ static void collision_with_scene(const struct Vec2f* vf_origin, const struct Vec
 	}
 }
 
-int collision_lines(const struct Vec2f* vf_origin, const struct Vec2f* vf_ray,
+int game_collision_lines(const struct Vec2f* vf_origin, const struct Vec2f* vf_ray,
 	const struct Object* starting_object, struct Vec2f* vf_intersect)
 {
 	int num_intersections = 0;
@@ -94,13 +96,13 @@ int collision_lines(const struct Vec2f* vf_origin, const struct Vec2f* vf_ray,
 	struct Object* object_next = starting_object;
 	while (object_next != NULL)
 	{
-		for (int i = 0; i < object_next->lines_size; i++)
+		for (struct Line* line = object_next->lines_start; line != NULL; line = line->next)
 		{
 			struct Vec2f this_intersect;
 			bool this_did_intersect = get_line_intersection(
 				vf_origin, vf_ray,
-				&object_next->lines[i].points[0],
-				&object_next->lines[i].points[1],
+				&line->start,
+				&line->end,
 				&this_intersect
 			);
 
@@ -136,10 +138,10 @@ void game_collision_update_los(const struct Vec2f* vf_origin,
 	struct Object* next_object = starting_object;
 	while (next_object != NULL)  /* iterate over all collidable objects */
 	{
-		for (int i = 0; i < next_object->lines_size; i++)  /* iterate over their lines */
+		for (struct Line* line = next_object->lines_start; line != NULL; line = line->next)
 		{
-			//struct Vec2f vf0 = vector_subtract(next_object->lines[i].points[0], player.sprite.pos);
-			//struct Vec2f vf1 = player.aim;
+			//struct Vec2f vf0 = vector_subtract(next_object->lines[i].points[0], player->sprite->pos);
+			//struct Vec2f vf1 = player->aim;
 			//double radians = atan2(vf0.x, vf0.y) - atan2(vf1.x, vf1.y);
 
 			//if (radians > 0.5f || radians < -0.5f) continue;
@@ -147,7 +149,7 @@ void game_collision_update_los(const struct Vec2f* vf_origin,
 			//LOG_DEBUG("%f %f -> %f %f = %f\n", vf0.x, vf0.y, vf1.x, vf1.y, radians);
 
 
-			collision_with_scene(vf_origin, &next_object->lines[i].points[0],
+			collision_with_scene(vf_origin, &line->start,
 				starting_object, scene_objects_intersected_queue,
 				&scene_objects_intersected_queue_index);
 		}
@@ -156,13 +158,13 @@ void game_collision_update_los(const struct Vec2f* vf_origin,
 	}
 
 	//struct Vec2f fov_1, fov_2;
-	//double rad = player.sprite.angle + player.sprite.angle_offset;
+	//double rad = player->sprite->angle + player->sprite->angle_offset;
 	//fov_1.x = cos(rad - 0.5f);
 	//fov_1.y = sin(rad - 0.5f);
 	//fov_2.x = cos(rad + 0.5f);
 	//fov_2.y = sin(rad + 0.5f);
-	//fov_1 = vector_add(player.sprite.pos, fov_1);
-	//fov_2 = vector_add(player.sprite.pos, fov_2);
+	//fov_1 = vector_add(player->sprite->pos, fov_1);
+	//fov_2 = vector_add(player->sprite->pos, fov_2);
 
 	//collision_with_scene(vf_origin, &fov_1,
 	//	starting_object, scene_objects_intersected_queue,
@@ -235,4 +237,19 @@ bool game_collision_circle_and_line(struct Circle C, struct Vec2f A,
 		return false;  /* TODO true or false? */
 	else
 		return false;
+}
+
+bool game_collision_is_inside_polygon(struct Vec2f point, struct Object object)
+{
+	bool c = false;
+
+	/* TODO convert to linked list */
+
+	//for (int i = 0, j = object.lines_size - 1; i < object.lines_size; j = i++) {
+	//	if (((object.lines[i].points[0].y > point.y) != (object.lines[j].points[0].y > point.y)) &&
+	//		(point.x < (object.lines[j].points[0].x - object.lines[i].points[0].x) * (point.y - object.lines[i].points[0].y) / (object.lines[j].points[0].y - object.lines[i].points[0].y) + object.lines[i].points[0].x))
+	//		c = !c;
+	//}
+
+	return c;
 }
