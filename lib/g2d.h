@@ -5,15 +5,19 @@
  * Public API header.
  */
 
-#include "utils.h"
-#include "window.h"
-#include "render.h"
+#include "g2d/utils.h"
+#include "g2d/window.h"
+#include "g2d/render.h"
+
 
 bool g2d_init(void);
-void g2d_poll_event(void);
+void g2d_cleanup(void);
 
-struct G2D_Input* gp_g2d_input;
-struct G2D_Window* gp_g2d_window;
+
+/* Global Pointers */
+
+struct G2D_Window_Input*	gp_g2d_input;
+struct G2D_Window*			gp_g2d_window;
 
 
 

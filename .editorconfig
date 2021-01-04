@@ -1,0 +1,5 @@
+root = true
+
+# All files
+[*]
+guidelines = 80

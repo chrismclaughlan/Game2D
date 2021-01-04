@@ -1,7 +1,7 @@
 #ifndef GAME_G_H
 #define GAME_G_H
 
-#include "../../lib/G2D/headers/g2d.h"
+#include "../../lib/g2d.h"
 
 #include "g_collisions.h"
 #include "g_entities.h"
@@ -9,8 +9,15 @@
 #include "g_render.h"
 #include "g_resources.h"
 #include "g_scene.h"
+#include "g_sound.h"
 #include "g_sprite.h"
 #include "g_utils.h"
+
+/* - - - - - - - - Sound - - - - - - - - */
+
+int g_sound_gun_shot;
+int g_sound_gun_cock;
+int g_sound_gun_trigger;
 
 
 /* - - - - - - - - Game Mode - - - - - - - - */
@@ -23,35 +30,35 @@ enum Game_Mode
 	GM_COUNT
 };
 
-enum Game_Mode game_mode;
+enum Game_Mode g_game_mode;
 
 #define BUILD_SELECTION_CIRCLE_RADIUS 0.02f
 
-struct Vec2f* selection_pos_1;
-struct Vec2f* selection_pos_2;
+struct Vec2f* gp_selection_pos_1;
+struct Vec2f* gp_selection_pos_2;
 
 
 /* - - - - - - - - Player - - - - - - - - */
 
-struct Sprite_Image* sprite_image_soldier;
+struct G2D_Sprite_Image* gp_sprite_image_soldier;
 
-struct Player* player;
+struct Player* gp_player;
 
 
 /* - - - - - - - - Entities - - - - - - - - */
 
-struct Sprite_Image* sprite_image_enemy;
+struct G2D_Sprite_Image* gp_sprite_image_enemy;
 
-struct Enemy* enemy_head;
+struct Enemy* gp_enemy_head;
 
 
 /* - - - - - - - - Scene - - - - - - - - */
 
-struct Object* scene_objects_head;
-uint scene_objects_intersected_queue_index;
-struct Vec3f* scene_objects_intersected_queue;
+struct Object* gp_scene_objects_head;
+uint g_scene_objects_intersected_queue_index;
+struct Vec3f* g_scene_objects_intersected_queue;  /* TODO */
 
-uint bullet_holes_index;
-struct Vec2f bullet_holes[32];
+uint g_bullet_holes_index;
+struct Vec2f g_bullet_holes[32];  /* TODO */
 
 #endif

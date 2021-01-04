@@ -1,6 +1,7 @@
-#include "../headers/w_win32.h"
+#include "../w_win32.h"
 
-void window_fps_init()
+void 
+w_win32_fps_init()
 {
 	LARGE_INTEGER fps_counter_frequency;
 	QueryPerformanceCounter(&gp_g2d_window->fps_counter_last);
@@ -10,7 +11,8 @@ void window_fps_init()
 	gp_g2d_window->fps_last_dt = 0.016666f;  /* TODO get display frequency */
 }
 
-void window_fps_query()
+void 
+w_win32_fps_query()
 {
 	QueryPerformanceCounter(&gp_g2d_window->fps_counter_current);
 	gp_g2d_window->fps_last_dt = (float)((float)(gp_g2d_window->fps_counter_current.QuadPart - gp_g2d_window->fps_counter_last.QuadPart) / gp_g2d_window->fps_counter_f);

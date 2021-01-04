@@ -1,4 +1,4 @@
-#include "../headers/render.h"
+#include "../render.h"
 #include "headers/r_internal.h"
 
 
@@ -13,7 +13,8 @@
  *          |
  *         0.0f
  */
-static uint32 sprite_image_lookup(const struct Sprite_Image* sprite_image, float xf, float yf)
+static uint32 
+sprite_image_lookup(const struct G2D_Sprite_Image* sprite_image, float xf, float yf)
 {
 	xf = clamp(xf, 0.0f, 1.0f);
 	yf = clamp(yf, 0.0f, 1.0f);
@@ -42,25 +43,28 @@ static uint32 sprite_image_lookup(const struct Sprite_Image* sprite_image, float
 }
 
 
-void render_draw_sprite(struct Sprite* sprite)
+void 
+r_draw_sprite(struct G2D_Sprite* sprite)
 {
 	//const int width = g2d_window->width * sprite->scale;
 	//const int height = g2d_window->height * sprite->scale;
 
-	//const struct Vec2 v = render_screen_to_px(sprite->pos);
+	//const struct Vec2 v = r_screen_to_px(sprite->pos);
 	//int left = clamp(v.x - (width / 2), 0, g2d_window->width);
 	//int right = clamp(v.x + (width / 2), 0, g2d_window->width);
 	//int bottom = clamp(v.y - (height / 2), 0, g2d_window->height);
 	//int top = clamp(v.y + (height / 2), 0, g2d_window->height);
 
-	const float half_width = ((float)sprite->sprite_image->bi_width / (float)gp_g2d_window->width);
-	const float half_height = ((float)sprite->sprite_image->bi_height / (float)gp_g2d_window->height);
+	//const float half_width = ((float)sprite->sprite_image->bi_width / (float)gp_g2d_window->width);
+	//const float half_height = ((float)sprite->sprite_image->bi_height / (float)gp_g2d_window->height);
+	const float half_width = ((float)sprite->sprite_image->bi_width / 1000.0f) * sprite->scale;
+	const float half_height = ((float)sprite->sprite_image->bi_height / 1000.0f) * sprite->scale;
 
 	struct Vec2f vf_bl, vf_tr;
-	vf_bl.x = sprite->pos.x + (sprite->pos_offset_x * half_width) - (half_width * sprite->scale);
-	vf_bl.y = sprite->pos.y + (sprite->pos_offset_y * half_height) - (half_height * sprite->scale);
-	vf_tr.x = sprite->pos.x + (sprite->pos_offset_x * half_width) + (half_width * sprite->scale);
-	vf_tr.y = sprite->pos.y + (sprite->pos_offset_y * half_height) + (half_height * sprite->scale);
+	vf_bl.x = sprite->pos.x - half_width;
+	vf_bl.y = sprite->pos.y - half_height;
+	vf_tr.x = sprite->pos.x + half_width;
+	vf_tr.y = sprite->pos.y + half_height;
 
 	//clampv(vf_bl, -1.0f, +1.0f);
 	//clampv(vf_tr, -1.0f, +1.0f);
@@ -87,7 +91,7 @@ void render_draw_sprite(struct Sprite* sprite)
 
 			//vf = vector_multiply(vf, sprite->scale);
 
-			render_draw_point_f(
+			r_draw_point_f(
 				sprite_image_lookup(sprite->sprite_image,
 				(i - vf_bl.x) / (vf_tr.x - vf_bl.x),
 					(j - vf_bl.y) / (vf_tr.y - vf_bl.y)
@@ -117,7 +121,7 @@ void render_draw_sprite(struct Sprite* sprite)
 
 	//		vf = vector_multiply(vf, sprite->scale);
 
-	//		render_draw_point_f(
+	//		r_draw_point_f(
 	//			window_sprite_lookup(sprite, i, j), 
 	//			vf);
 	//	}
@@ -135,7 +139,7 @@ void render_draw_sprite(struct Sprite* sprite)
 	//		const int xi = (i - v.x) * cos(sprite->angle) - (j - v.y) * sin(sprite->angle) + v.x;
 	//		const int yi = (i - v.x) * sin(sprite->angle) + (j - v.y) * cos(sprite->angle) + v.y;
 
-	//		render_draw_point(
+	//		r_draw_point(
 	//			window_sprite_lookup(
 	//				sprite,
 	//				x,

@@ -1,7 +1,8 @@
-#include "../headers/w_win32.h"
-#include "headers/win32_internal.h"
+#include "../w_win32.h"
+#include "headers/w_win32_internal.h"
 
-void window_input_keyboard_reset()
+void 
+window_input_keyboard_reset()
 {
 	for (int i = 0; i < BUTTON_COUNT; i++)
 	{
@@ -10,7 +11,8 @@ void window_input_keyboard_reset()
 	}
 }
 
-void window_input_keyboard_reset_changed()
+void 
+window_input_keyboard_reset_changed()
 {
 	for (int i = 0; i < BUTTON_COUNT; i++)
 	{
@@ -18,7 +20,8 @@ void window_input_keyboard_reset_changed()
 	}
 }
 
-void window_input_keyboard_event(uint vk_code, bool is_down)
+void 
+window_input_keyboard_event(uint vk_code, bool is_down)
 {
 	switch (vk_code)
 	{
@@ -49,7 +52,8 @@ void window_input_keyboard_event(uint vk_code, bool is_down)
 	}
 }
 
-void window_input_keyboard_event_type(char vk_code)
+void 
+window_input_keyboard_event_type(char vk_code)
 {
 	switch (vk_code)
 	{

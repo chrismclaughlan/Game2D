@@ -1,4 +1,4 @@
-#include "../headers/game.h"
+#include "../game.h"
 #include "headers/g_player.h"
 #include "headers/g_entities.h"
 #include "headers/g_scene.h"
@@ -6,35 +6,42 @@
 
 void game_destroy(void)
 {
+	/* Sound */
+
+	(void)w_win32_sound_destroy(g_sound_gun_shot);
+	(void)w_win32_sound_destroy(g_sound_gun_cock);
+	(void)w_win32_sound_destroy(g_sound_gun_trigger);
+
+
 	/* Player */
-	game_sprite_destroy(player->sprite);
-	(void)free(player);
+	game_sprite_destroy(gp_player->sprite);
+	(void)free(gp_player);
 
 
 	/* Entities - Enemy */
-	while (enemy_head != NULL)
+	while (gp_enemy_head != NULL)
 	{
-		struct Enemy* tmp = enemy_head->next;
-		game_entities_enemy_destroy(enemy_head);
-		enemy_head = tmp;
+		struct Enemy* tmp = gp_enemy_head->next;
+		game_entities_enemy_destroy(gp_enemy_head);
+		gp_enemy_head = tmp;
 	}
 
 
 	/* Sprite Images*/
 	
-	window_sprite_image_destroy(sprite_image_soldier);
-	window_sprite_image_destroy(sprite_image_enemy);
+	w_win32_sprite_image_destroy(gp_sprite_image_soldier);
+	w_win32_sprite_image_destroy(gp_sprite_image_enemy);
 
 
 	/* Scene */
 
-	(void) free(scene_objects_intersected_queue);
+	(void) free(g_scene_objects_intersected_queue);
 
-	while (scene_objects_head != NULL)
+	while (gp_scene_objects_head != NULL)
 	{
-		struct Object* tmp = scene_objects_head->next;
-		game_scene_object_destroy(scene_objects_head);
-		scene_objects_head = tmp;
+		struct Object* tmp = gp_scene_objects_head->next;
+		game_scene_object_destroy(gp_scene_objects_head);
+		gp_scene_objects_head = tmp;
 	}
 
 	///* Scene - Boundary */

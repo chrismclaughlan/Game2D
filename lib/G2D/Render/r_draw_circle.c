@@ -1,10 +1,10 @@
-#include "../headers/render.h"
+#include "../render.h"
 #include "headers/r_internal.h"
 
 /* Draw Circle */
 
-static void render_draw_circle(uint32 colour,
-	struct Vec2 v_origin, int width, int height)
+static void 
+draw_circle(uint32 colour, struct Vec2 v_origin, int width, int height)
 {
 	int hh = height * height;
 	int ww = width * width;
@@ -14,7 +14,7 @@ static void render_draw_circle(uint32 colour,
 
 	// do the horizontal diameter
 	for (int x = -width; x <= width; x++)
-		render_draw_point(colour, v_origin.x + x, v_origin.y);
+		r_draw_point(colour, v_origin.x + x, v_origin.y);
 
 	// now do both halves at the same time, away from the diameter
 	for (int y = 1; y <= height; y++)
@@ -28,18 +28,19 @@ static void render_draw_circle(uint32 colour,
 
 		for (int x = -x0; x <= x0; x++)
 		{
-			render_draw_point(colour, v_origin.x + x, v_origin.y - y);
-			render_draw_point(colour, v_origin.x + x, v_origin.y + y);
+			r_draw_point(colour, v_origin.x + x, v_origin.y - y);
+			r_draw_point(colour, v_origin.x + x, v_origin.y + y);
 		}
 	}
 }
 
-void render_draw_circle_f(uint32 colour, struct Vec2f vf_origin,
-	float radius_x, float radius_y)
+void 
+r_draw_circle_f(uint32 colour, struct Vec2f vf_origin, float radius_x, 
+	float radius_y)
 {
-	render_draw_circle(colour,
-		render_screen_to_px(vf_origin),
-		render_coord_translate_from_f_x(radius_x),
-		render_coord_translate_from_f_y(radius_y));
+	draw_circle(colour,
+		r_screen_to_px(vf_origin),
+		r_coord_translate_from_f_x(radius_x),
+		r_coord_translate_from_f_y(radius_y));
 }
 

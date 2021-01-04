@@ -1,4 +1,4 @@
-#include "../headers/render.h"
+#include "../render.h"
 #include "headers/r_internal.h"
 
 
@@ -14,8 +14,8 @@
  * \param v2 Vec2 to finish drawing to
  * \param colour colour to draw pixels in line
  */
-void render_draw_line_pixels(uint32 colour,
-	struct Vec2 v0, struct Vec2 v1)
+void 
+r_draw_line_pixels(uint32 colour, struct Vec2 v0, struct Vec2 v1)
 {
 	int dx, sx, dy, sy, err, e2;
 	dx = abs(v1.x - v0.x);
@@ -31,7 +31,7 @@ void render_draw_line_pixels(uint32 colour,
 	err = dx + dy;
 	while (true)
 	{
-		render_draw_point(colour, v0.x, v0.y);
+		r_draw_point(colour, v0.x, v0.y);
 
 		if (v0.x == v1.x && v0.y == v1.y)
 			break;
@@ -49,10 +49,11 @@ void render_draw_line_pixels(uint32 colour,
 	}
 }
 
-void render_draw_line_f(uint32 colour, struct Vec2f vf0, struct Vec2f vf1)
+void 
+r_draw_line_f(uint32 colour, struct Vec2f vf0, struct Vec2f vf1)
 {
-	render_draw_line_pixels(colour,
-		render_screen_to_px(vf0),
-		render_screen_to_px(vf1));
+	r_draw_line_pixels(colour,
+		r_screen_to_px(vf0),
+		r_screen_to_px(vf1));
 }
 

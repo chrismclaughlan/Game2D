@@ -1,4 +1,4 @@
-#include "../headers/render.h"
+#include "../render.h"
 #include "headers/r_internal.h"
 
 
@@ -9,7 +9,8 @@
  *
  * \see Called by render_draw_triangle_pixels
  */
-static void render_draw_triangle_flattop(uint32 colour, struct Vec2 v0,
+static void 
+draw_triangle_flattop(uint32 colour, struct Vec2 v0,
 	struct Vec2 v1, struct Vec2 v2)
 {
 	//assert(v2.y - v0.y != 0);
@@ -26,7 +27,7 @@ static void render_draw_triangle_flattop(uint32 colour, struct Vec2 v0,
 		v0_.x = curx1; v0_.y = scanlineY;
 		v1_.x = curx2; v1_.y = scanlineY;
 
-		render_draw_line_pixels(colour, v0_, v1_);
+		r_draw_line_pixels(colour, v0_, v1_);
 		curx1 += invslope1;
 		curx2 += invslope2;
 	}
@@ -37,8 +38,9 @@ static void render_draw_triangle_flattop(uint32 colour, struct Vec2 v0,
  *
  * \see Called by render_draw_triangle_pixels
  */
-static void render_draw_triangle_flatbottom(uint32 colour,
-	struct Vec2 v0, struct Vec2 v1, struct Vec2 v2)
+static void 
+draw_triangle_flatbottom(uint32 colour, struct Vec2 v0, 
+	struct Vec2 v1, struct Vec2 v2)
 {
 	//assert(v1.y - v0.y != 0);
 	//assert(v2.y - v0.y != 0);
@@ -54,7 +56,7 @@ static void render_draw_triangle_flatbottom(uint32 colour,
 		v0_.x = curx1; v0_.y = scanlineY;
 		v1_.x = curx2; v1_.y = scanlineY;
 
-		render_draw_line_pixels(colour, v0_, v1_);
+		r_draw_line_pixels(colour, v0_, v1_);
 		curx1 -= invslope1;
 		curx2 -= invslope2;
 	}
@@ -70,8 +72,9 @@ static void render_draw_triangle_flatbottom(uint32 colour,
  * \see render_draw_triangle_flattop
  * \see render_draw_triangle_flatbottom
  */
-static void render_draw_triangle_pixels(uint32 colour,
-	struct Vec2 v0, struct Vec2 v1, struct Vec2 v2)
+static void 
+draw_triangle_pixels(uint32 colour, struct Vec2 v0, struct Vec2 v1, 
+	struct Vec2 v2)
 {
 	// Sort ascending by Y
 	if (v0.y > v1.y)
@@ -96,11 +99,11 @@ static void render_draw_triangle_pixels(uint32 colour,
 
 	if (v1.y == v2.y)
 	{
-		render_draw_triangle_flatbottom(colour, v0, v1, v2);
+		draw_triangle_flatbottom(colour, v0, v1, v2);
 	}
 	else if (v0.y == v1.y)
 	{
-		render_draw_triangle_flattop(colour, v0, v1, v2);
+		draw_triangle_flattop(colour, v0, v1, v2);
 	}
 	else
 	{
@@ -108,18 +111,19 @@ static void render_draw_triangle_pixels(uint32 colour,
 		struct Vec2 v3;
 		v3.x = (int)(v0.x + ((float)(v1.y - v0.y) / (float)(v2.y - v0.y)) * (v2.x - v0.x));
 		v3.y = v1.y;
-		render_draw_triangle_flatbottom(colour, v0, v1, v3);
-		render_draw_triangle_flattop(colour, v1, v3, v2);
+		draw_triangle_flatbottom(colour, v0, v1, v3);
+		draw_triangle_flattop(colour, v1, v3, v2);
 	}
 }
 
-void render_draw_triangle(uint32 colour,
-	struct Vec2f vf0, struct Vec2f vf1, struct Vec2f vf2)
+void 
+r_draw_triangle(uint32 colour,	struct Vec2f vf0, struct Vec2f vf1, 
+	struct Vec2f vf2)
 {
 	struct Vec2 v0, v1, v2;
-	v0 = render_screen_to_px(vf0);
-	v1 = render_screen_to_px(vf1);
-	v2 = render_screen_to_px(vf2);
+	v0 = r_screen_to_px(vf0);
+	v1 = r_screen_to_px(vf1);
+	v2 = r_screen_to_px(vf2);
 
-	render_draw_triangle_pixels(colour, v0, v1, v2);
+	draw_triangle_pixels(colour, v0, v1, v2);
 }

@@ -16,11 +16,11 @@
 
 
 #include "utils.h"
-#include "../Window/headers/w_buttons.h"
-#include "../Window/headers/w_input.h"
+#include "Window/w_buttons.h"
+#include "Window/w_input.h"
 
 #if defined(_WIN32) || defined(_WIN64)
-#include "../Window/headers/w_win32.h"
+#include "Window/w_win32.h"
 #else
 /* Other platforms */
 #endif
@@ -31,8 +31,10 @@ struct G2D_Window
 	uint width;
 	uint height;
 	uint32* p_buffer;
+	bool has_focus;
 
 #if defined(_WIN32) || defined(_WIN64)
+	HINSTANCE hinstance;
 	HDC hdc;
 	HWND hwnd;
 	FILE* f_window_console;

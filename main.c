@@ -1,5 +1,5 @@
-#include "lib/G2D/headers/g2d.h"
-#include "headers/game.h"
+#include "lib/g2d.h"
+#include "game.h"
 #include <stdlib.h>
 #include <shellapi.h>
 #include <stdio.h>
@@ -15,29 +15,29 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		return 1;
 	}
 
-	if (!window_create(hInstance, 600, 600, PROJECT_NAME))
+	if (!w_win32_create(hInstance, 600, 600, PROJECT_NAME))
 	{
 		return 1;
 	}
-	//(void) atexit(window_destroy)
+	//(void) atexit(w_win32_destroy)
 
 	game_init();
 	(void) atexit(game_destroy);
 
-	window_fps_init();
+	w_win32_fps_init();
     for (;;)
     {
         /* Input */
-        window_input();
+        w_win32_input();
 
         /* Simulate */
         game_simulate();
 
-        /* Render TODO window_render() ... again */
-		window_render();
+        /* Render TODO w_win32_render() ... again */
+		w_win32_render();
 
 		/* frame rate */
-		window_fps_query();
+		w_win32_fps_query();
     }
 
 	return 0;

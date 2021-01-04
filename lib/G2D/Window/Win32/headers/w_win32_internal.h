@@ -4,11 +4,17 @@
 
 #include "hwindows.h"
 
+#define G2D_WINDOW_CLASS_NAME "G2DWindowClass"
 
-LRESULT window_callback(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+LRESULT w_win32_callback(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+
+void w_win32_focus_set();
+void w_win32_focus_lost();
 
 
 /* - - - - - - - - Input - - - - - - - - */
+
+/* TODO change structure */
 
 /* Keyboard */
 void window_input_keyboard_reset(void);

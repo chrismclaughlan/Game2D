@@ -1,8 +1,9 @@
-#include "../headers/render.h"
+#include "../render.h"
 
 /* Draw Rect */
 
-static void render_draw_rect_pixels(uint32 colour, uint x0, uint y0, uint x1, uint y1)
+static void 
+draw_rect_pixels(uint32 colour, uint x0, uint y0, uint x1, uint y1)
 {
 	x0 = clamp(x0, 0, gp_g2d_window->width);
 	x1 = clamp(x1, 0, gp_g2d_window->width);
@@ -26,20 +27,21 @@ static void render_draw_rect_pixels(uint32 colour, uint x0, uint y0, uint x1, ui
  *         |
  *       -1.0f
  */
-void render_draw_rect(uint32 colour, struct Vec2f vf, float half_width, float half_height)
+void 
+r_draw_rect(uint32 colour, struct Vec2f vf, float half_width, float half_height)
 {
 	int half_width_i, half_height_i;
 	struct Vec2 v;
 
 	/* Find center pixel */
 	clampv(vf, -1.0f, +1.0f);
-	v = render_screen_to_px(vf);
+	v = r_screen_to_px(vf);
 
 	/* Translate dismentions */
-	half_width_i = render_coord_translate_from_f_x(half_width);
-	half_height_i = render_coord_translate_from_f_y(half_height);
+	half_width_i = r_coord_translate_from_f_x(half_width);
+	half_height_i = r_coord_translate_from_f_y(half_height);
 
-	render_draw_rect_pixels(colour,
+	draw_rect_pixels(colour,
 		v.x - half_width_i,
 		v.y - half_height_i,
 		v.x + half_width_i,

@@ -1,15 +1,17 @@
-#include "../headers/render.h"
+#include "../render.h"
 #include "headers/r_internal.h"
 
 
 /* Draw Point */
 
-static inline uint32 alpha_blend(uint32 c_src, uint32 c_dst, float alpha)
+static inline uint32 
+alpha_blend(uint32 c_src, uint32 c_dst, float alpha)
 {
 	return (uint32)((float)c_src * alpha) + ((1.0f - alpha) * (float)c_dst);
 }
 
-void render_draw_point(uint32 colour, int x0, int y0)
+void 
+r_draw_point(uint32 colour, int x0, int y0)
 {
 	if (x0 < 0 || x0 >= gp_g2d_window->width || y0 < 0 || y0 >= gp_g2d_window->height)
 	{
@@ -27,8 +29,9 @@ void render_draw_point(uint32 colour, int x0, int y0)
 	gp_g2d_window->p_buffer[x0 + (y0 * gp_g2d_window->width)] = colour_new;
 }
 
-void render_draw_point_f(uint32 colour, struct Vec2f vf)
+void 
+r_draw_point_f(uint32 colour, struct Vec2f vf)
 {
-	struct Vec2 v = render_screen_to_px(vf);
-	render_draw_point(colour, v.x, v.y);
+	struct Vec2 v = r_screen_to_px(vf);
+	r_draw_point(colour, v.x, v.y);
 }

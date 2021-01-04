@@ -38,7 +38,7 @@ static inline collision_lines_using_angle(const struct Vec2f* vf_origin, const d
 	struct Vec2f vf_ray;
 	vf_ray.y = cos(angle) * 10.0f;
 	vf_ray.x = sin(angle) * 10.0f;
-	vf_ray = vector_add(vf_ray, *vf_origin);
+	vf_ray = u_vector_add(vf_ray, *vf_origin);
 
 	return game_collision_lines(vf_origin, &vf_ray, starting_object, vf_intersect);
 }
@@ -48,7 +48,7 @@ static void collision_with_scene(const struct Vec2f* vf_origin, const struct Vec
 	uint* vf_intersection_queue_index)
 {
 	struct Vec2f vf_collision;
-	struct Vec2f vf = vector_subtract(*vf_target, *vf_origin);
+	struct Vec2f vf = u_vector_subtract(*vf_target, *vf_origin);
 	double radians = atan2(vf.x, vf.y) - atan2(0.0f, 1.0f);
 
 	/* Test exact corner */
@@ -60,7 +60,7 @@ static void collision_with_scene(const struct Vec2f* vf_origin, const struct Vec
 		vf_intersection_queue[*vf_intersection_queue_index].z = radians;
 		(*vf_intersection_queue_index)++;
 
-		//render_draw_line_f(0xff0000, *vf_origin, vf_collision, false);
+		//r_draw_line_f(0xff0000, *vf_origin, vf_collision, false);
 	}
 
 	/* Test either side of corner to get area behind */
@@ -73,7 +73,7 @@ static void collision_with_scene(const struct Vec2f* vf_origin, const struct Vec
 		vf_intersection_queue[*vf_intersection_queue_index].y = vf_collision.y;
 		vf_intersection_queue[*vf_intersection_queue_index].z = radians + radians_offset;
 		(*vf_intersection_queue_index)++;
-		//render_draw_line_f(0x00ff00, *vf_origin, vf_collision, false);
+		//r_draw_line_f(0x00ff00, *vf_origin, vf_collision, false);
 	}
 
 	if (collision_lines_using_angle(vf_origin, radians - radians_offset,
@@ -83,7 +83,7 @@ static void collision_with_scene(const struct Vec2f* vf_origin, const struct Vec
 		vf_intersection_queue[*vf_intersection_queue_index].y = vf_collision.y;
 		vf_intersection_queue[*vf_intersection_queue_index].z = radians - radians_offset;
 		(*vf_intersection_queue_index)++;
-		//render_draw_line_f(0x0000ff, *vf_origin, vf_collision, false);
+		//r_draw_line_f(0x0000ff, *vf_origin, vf_collision, false);
 	}
 }
 
@@ -110,7 +110,7 @@ int game_collision_lines(const struct Vec2f* vf_origin, const struct Vec2f* vf_r
 			{
 				num_intersections++;
 
-				float distance = vector_distance(*vf_origin, this_intersect);
+				float distance = u_vector_distance(*vf_origin, this_intersect);
 				if (distance < distance_to_intersect)
 				{
 					distance_to_intersect = distance;
@@ -140,8 +140,8 @@ void game_collision_update_los(const struct Vec2f* vf_origin,
 	{
 		for (struct Line* line = next_object->lines_start; line != NULL; line = line->next)
 		{
-			//struct Vec2f vf0 = vector_subtract(next_object->lines[i].points[0], player->sprite->pos);
-			//struct Vec2f vf1 = player->aim;
+			//struct Vec2f vf0 = u_vector_subtract(next_object->lines[i].points[0], gp_player->sprite->pos);
+			//struct Vec2f vf1 = gp_player->aim;
 			//double radians = atan2(vf0.x, vf0.y) - atan2(vf1.x, vf1.y);
 
 			//if (radians > 0.5f || radians < -0.5f) continue;
@@ -150,28 +150,28 @@ void game_collision_update_los(const struct Vec2f* vf_origin,
 
 
 			collision_with_scene(vf_origin, &line->start,
-				starting_object, scene_objects_intersected_queue,
-				&scene_objects_intersected_queue_index);
+				starting_object, g_scene_objects_intersected_queue,
+				&g_scene_objects_intersected_queue_index);
 		}
 
 		next_object = next_object->next;
 	}
 
 	//struct Vec2f fov_1, fov_2;
-	//double rad = player->sprite->angle + player->sprite->angle_offset;
+	//double rad = gp_player->sprite->angle + gp_player->sprite->angle_offset;
 	//fov_1.x = cos(rad - 0.5f);
 	//fov_1.y = sin(rad - 0.5f);
 	//fov_2.x = cos(rad + 0.5f);
 	//fov_2.y = sin(rad + 0.5f);
-	//fov_1 = vector_add(player->sprite->pos, fov_1);
-	//fov_2 = vector_add(player->sprite->pos, fov_2);
+	//fov_1 = u_vector_add(gp_player->sprite->pos, fov_1);
+	//fov_2 = u_vector_add(gp_player->sprite->pos, fov_2);
 
 	//collision_with_scene(vf_origin, &fov_1,
-	//	starting_object, scene_objects_intersected_queue,
-	//	&scene_objects_intersected_queue_index);
+	//	starting_object, g_scene_objects_intersected_queue,
+	//	&g_scene_objects_intersected_queue_index);
 	//collision_with_scene(vf_origin, &fov_2,
-	//	starting_object, scene_objects_intersected_queue,
-	//	&scene_objects_intersected_queue_index);
+	//	starting_object, g_scene_objects_intersected_queue,
+	//	&g_scene_objects_intersected_queue_index);
 
 }
 
@@ -192,7 +192,7 @@ bool game_collision_is_in_circle(struct Vec2f vf_origin, struct Vec2f vf_target,
 bool game_collision_circle_and_line(struct Circle C, struct Vec2f A,
 	struct Vec2f B, double* distance, struct Vec2f* F, struct Vec2f* G)
 {
-	double distance_AB = vector_distance(A, B);
+	double distance_AB = u_vector_distance(A, B);
 	struct Vec2f D, E;
 	D.x = (B.x - A.x) / distance_AB;
 	D.y = (B.y - A.y) / distance_AB;
@@ -208,7 +208,7 @@ bool game_collision_circle_and_line(struct Circle C, struct Vec2f A,
 	E.y = t * D.y + A.y;
 
 	// compute the euclidean distance between E and C
-	double distance_EC = vector_distance(E, C.pos);
+	double distance_EC = u_vector_distance(E, C.pos);
 
 	// test if the line intersects the circle
 	if (distance_EC < C.radius)
@@ -239,17 +239,20 @@ bool game_collision_circle_and_line(struct Circle C, struct Vec2f A,
 		return false;
 }
 
-bool game_collision_is_inside_polygon(struct Vec2f point, struct Object object)
+bool game_collision_is_inside_polygon(struct Vec2f point, const struct Object* object)
 {
 	bool c = false;
+	
+	for (struct Line *prev = object->lines_end, *line = object->lines_start; line != NULL; prev = line, line = line->next)
+	{
+		if (((line->start.y > point.y) != (prev->start.y > point.y)) && (point.x < (prev->start.x - line->start.x) * (point.y - line->start.y) / (prev->start.y - line->start.y) + line->start.x))
+		{
+			c = !c;
+		}
+	}
 
-	/* TODO convert to linked list */
-
-	//for (int i = 0, j = object.lines_size - 1; i < object.lines_size; j = i++) {
-	//	if (((object.lines[i].points[0].y > point.y) != (object.lines[j].points[0].y > point.y)) &&
-	//		(point.x < (object.lines[j].points[0].x - object.lines[i].points[0].x) * (point.y - object.lines[i].points[0].y) / (object.lines[j].points[0].y - object.lines[i].points[0].y) + object.lines[i].points[0].x))
-	//		c = !c;
-	//}
+	/* interesting format */
+	//for (int i = 0, j = object.lines_size - 1; i < object.lines_size; j = i++)
 
 	return c;
 }

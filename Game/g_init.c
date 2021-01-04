@@ -1,4 +1,4 @@
-#include "../headers/game.h"
+#include "../game.h"
 #include "headers/g_resources.h"
 #include "headers/g_player.h"
 #include "headers/g_entities.h"
@@ -8,6 +8,13 @@
 
 void game_init()
 {
+	/* Sound */
+
+	g_sound_gun_shot = w_win32_sound_create("gun_shot");
+	g_sound_gun_cock = w_win32_sound_create("gun_cock");
+	g_sound_gun_trigger = w_win32_sound_create("gun_trigger");
+
+
 	/* Input */
 
 	gp_g2d_input->allow_typing = false;
@@ -16,49 +23,49 @@ void game_init()
 
 	/* Game Modes */
 
-	game_mode = GM_BUILD;
-	selection_pos_1 = NULL;
-	selection_pos_2 = NULL;
+	g_game_mode = GM_BUILD;
+	gp_selection_pos_1 = NULL;
+	gp_selection_pos_2 = NULL;
 
 
 	/* Load sprite images */
-	sprite_image_soldier = window_sprite_image_load(RESOURCE_PLAYER);
-	if (!sprite_image_soldier)
+	gp_sprite_image_soldier = w_win32_sprite_image_load(RESOURCE_PLAYER);
+	if (!gp_sprite_image_soldier)
 	{
 		Sleep(5000);
 		exit(1);
 	}
-	sprite_image_enemy = window_sprite_image_load(RESOURCE_ENEMY);
-	if (!sprite_image_enemy)
+	gp_sprite_image_enemy = w_win32_sprite_image_load(RESOURCE_ENEMY);
+	if (!gp_sprite_image_enemy)
 	{
 		Sleep(5000);
 		exit(1);
 	}
 
 
-	player = malloc(sizeof(struct Player));
-	if (!player)
+	gp_player = malloc((sizeof *gp_player));
+	if (!gp_player)
 	{
-		LOG_ERROR("player = malloc()\n");
+		LOG_ERROR("gp_player = malloc()\n");
 		return;
 	}
-	(void)memset(player, 0, sizeof(struct Player));
+	(void)memset(gp_player, 0, sizeof(struct Player));
 	
-	player->sprite = game_sprite_create(sprite_image_soldier, 0.0f, 0.0f, 0.4f);
-	if (!player->sprite)
+	gp_player->sprite = game_sprite_create(gp_sprite_image_soldier, 0.0f, 0.0f, 2.0f);
+	if (!gp_player->sprite)
 	{
 		LOG_ERROR("game_sprite_create\n");
 		return;
 	}
-	game_sprite_modify_pos_offset(player->sprite, 0.2f, 0.2f);
-	game_sprite_modify_angle_offset(player->sprite, PI / 2.0f);
+	game_sprite_modify_pos_offset(gp_player->sprite, 0.05f, 0.05f);
+	game_sprite_modify_angle_offset(gp_player->sprite, PI / 2.0f);
 
 
 
 	/* Player */
 
-	player->aim.x = 0.0f;
-	player->aim.y = 0.0f;
+	gp_player->aim.x = 0.0f;
+	gp_player->aim.y = 0.0f;
 
 
 	/* Enemy */
@@ -92,8 +99,8 @@ void game_init()
 	//	//game_sprite_modify_angle_offset(enemies[i]->sprite, PI / 2.0f);
 	//}
 
-	enemy_head = game_entities_enemy_create(0.0f, 0.0f, 2.0f, 0.1f, 100);
-	struct Enemy* enemy = enemy_head;
+	gp_enemy_head = game_entities_enemy_create(0.0f, 0.0f, 2.0f, 0.1f, 100);
+	struct Enemy* enemy = gp_enemy_head;
 	for (int i = 0; i < 5; i++)
 	{
 		enemy->next = game_entities_enemy_create(
@@ -111,14 +118,14 @@ void game_init()
 
 	/* Scene */
 
-	bullet_holes_index = 0;
-	memset(bullet_holes, 0, sizeof(bullet_holes));
+	g_bullet_holes_index = 0;
+	memset(g_bullet_holes, 0, sizeof(g_bullet_holes));
 
 
 	/* Scene - LOS */
-	scene_objects_intersected_queue_index = 0;
-	scene_objects_intersected_queue = malloc(sizeof(struct Vec3f) * 128);
-	if (scene_objects_intersected_queue == NULL)
+	g_scene_objects_intersected_queue_index = 0;
+	g_scene_objects_intersected_queue = malloc((sizeof *g_scene_objects_intersected_queue) * 128);
+	if (g_scene_objects_intersected_queue == NULL)
 	{
 		LOG_ERROR("malloc()"); 
 		exit(1);
@@ -130,15 +137,15 @@ void game_init()
 	vertexes[1].x = -1.0f; vertexes[1].y = +1.0f;
 	vertexes[2].x = +1.0f; vertexes[2].y = +1.0f;
 	vertexes[3].x = +1.0f; vertexes[3].y = -1.0f;
-	scene_objects_head = game_scene_object_create(
-		SOLID_COLOUR(0xF5F5DC), vertexes, sizeof(vertexes) / sizeof(vertexes[0]));
-	if (!scene_objects_head)
+	gp_scene_objects_head = game_scene_object_create(
+		SOLID_COLOUR(0xF5F5DC), vertexes, sizeof(vertexes) / sizeof(vertexes[0]), false);
+	if (!gp_scene_objects_head)
 	{
 		LOG_ERROR("game_scene_object_create()\n");
 		exit(1);
 	}
 
-	struct Object* object = scene_objects_head;
+	struct Object* object = gp_scene_objects_head;
 	for (int i = 1; i < 4; i++)
 	{
 		vertexes[0].x = 0.1f * (float)i; vertexes[0].y = +0.1f * (float)i;
@@ -146,7 +153,7 @@ void game_init()
 		vertexes[2].x = 0.2f * (float)i; vertexes[2].y = +0.2f * (float)i;
 		vertexes[3].x = 0.2f * (float)i; vertexes[3].y = +0.1f * (float)i;
 		object->next = game_scene_object_create(SOLID_COLOUR(0xF5F5DC),
-			vertexes, sizeof(vertexes) / sizeof(vertexes[0]));
+			vertexes, sizeof(vertexes) / sizeof(vertexes[0]), true);
 
 		if (!object->next)
 		{

@@ -1,7 +1,8 @@
-#include "../headers/w_win32.h"
+#include "../w_win32.h"
 #include <math.h>
 
-void window_render()
+void 
+w_win32_render()
 {
 	StretchDIBits(
 		gp_g2d_window->hdc, 0, 0, gp_g2d_window->width, gp_g2d_window->height,

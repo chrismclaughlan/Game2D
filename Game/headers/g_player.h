@@ -3,20 +3,19 @@
 
 #include "g_internal.h"
 
-#define PLAYER_SIZE 0.02f
+#define PLAYER_SIZE 0.05f
 
 struct Player
 {
 	//struct Vec2f pos;
 	struct Vec2f aim;
-	struct Sprite* sprite;
+	struct G2D_Sprite* sprite;
 };
 
 
 /* Input */
 
 void game_player_input(const float dt);
-
 
 
 #endif

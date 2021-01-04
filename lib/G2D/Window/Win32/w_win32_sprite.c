@@ -1,4 +1,4 @@
-#include "../headers/w_win32.h"
+#include "../w_win32.h"
 #include <stdlib.h>
 #include <tchar.h>
 
@@ -33,7 +33,9 @@ struct BITMAPINFOHEADER
 };
 #pragma pack(pop)
 
-static uint8* window_load_bmp(char* filename, struct BITMAPINFOHEADER* bm_info_header)
+
+static uint8* 
+w_win32_load_bmp(char* filename, struct BITMAPINFOHEADER* bm_info_header)
 {
 	FILE* pfile;
 	//uint8* pbm_data;
@@ -79,7 +81,7 @@ static uint8* window_load_bmp(char* filename, struct BITMAPINFOHEADER* bm_info_h
 
 	(void)fseek(pfile, bm_file_header.bf_offset_bits, SEEK_SET);
 
-	uint8* pbm_data = (uint8*)malloc(bm_info_header->bi_size_image);
+	uint8* pbm_data = malloc(bm_info_header->bi_size_image);
 
 	if (!pbm_data)
 	{
@@ -102,11 +104,11 @@ static uint8* window_load_bmp(char* filename, struct BITMAPINFOHEADER* bm_info_h
 	/* Flip from BGR to RGB */
 	uint8 swap_value;
 	uint bytes_per_pixel = bm_info_header->bi_bit_count / 8;
-	for (int i = 0; i < bm_info_header->bi_size_image; i += bytes_per_pixel)
+	for (uint i = 0, j = 2; j < bm_info_header->bi_size_image; i += bytes_per_pixel, j = i + 2)
 	{
 		swap_value = pbm_data[i];
-		pbm_data[i] = pbm_data[i + 2];
-		pbm_data[i + 2] = swap_value;
+		pbm_data[i] = pbm_data[j];
+		pbm_data[j] = swap_value;
 	}
 
 	(void)fclose(pfile);
@@ -114,12 +116,14 @@ static uint8* window_load_bmp(char* filename, struct BITMAPINFOHEADER* bm_info_h
 	return pbm_data;
 }
 
-struct Sprite_Image* window_sprite_image_load(char* filename)
+
+struct G2D_Sprite_Image* 
+w_win32_sprite_image_load(char* filename)
 {
-	struct Sprite_Image* sprite_image;
+	struct G2D_Sprite_Image* sprite_image;
 	struct BITMAPINFOHEADER bm_info_header;
 
-	sprite_image = malloc(sizeof(struct Sprite_Image));
+	sprite_image = malloc((sizeof *sprite_image));
 	if (sprite_image == NULL)
 	{
 		LOG_ERROR("Error loading sprite from '%s': \
@@ -128,7 +132,7 @@ struct Sprite_Image* window_sprite_image_load(char* filename)
 		return NULL;
 	}
 
-	sprite_image->pdata = window_load_bmp(filename, &bm_info_header);
+	sprite_image->pdata = w_win32_load_bmp(filename, &bm_info_header);
 	if (sprite_image->pdata == NULL)
 	{
 		LOG_ERROR("File '%s' could not be read\n", filename);
@@ -143,12 +147,16 @@ struct Sprite_Image* window_sprite_image_load(char* filename)
 	return sprite_image;
 }
 
-void window_sprite_image_destroy(struct Sprite_Image* sprite_image)
+
+void 
+w_win32_sprite_image_destroy(struct G2D_Sprite_Image* sprite_image)
 {
 	(void)free(sprite_image);
 }
 
-void window_sprite_destroy(struct Sprite* sprite)
+
+void 
+w_win32_sprite_destroy(struct Sprite* sprite)
 {
 	/* IDEA: free sprite->sprite_image if count = 0 ? */
 

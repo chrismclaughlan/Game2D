@@ -1,4 +1,5 @@
-#include "../headers/w_win32.h"
+#include "../w_win32.h"
+#include "headers/w_win32_internal.h"
 #include <windowsx.h>  /* get x/y param*/
 #include <WinUser.h>  /* get wheel delta param */
 
@@ -8,17 +9,24 @@
  * https://stackoverflow.com/questions/7247601/how-to-exit-win32-application-via-api
  */
 LRESULT
-window_callback(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+w_win32_callback(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	LRESULT result = 0;
 
 	switch (msg)
 	{
 	/* Window */
+	case WM_SETFOCUS:
+	{
+		LOG_DEBUG("REGAINED FOCUS\n");
+
+		gp_g2d_window->has_focus = true;
+	} break;
 	case WM_KILLFOCUS:
 	{
 		LOG_DEBUG("LOST FOCUS\n");
 
+		gp_g2d_window->has_focus = false;
 		window_input_keyboard_reset();
 	} break;
 	case WM_CLOSE:
@@ -69,7 +77,7 @@ window_callback(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	case WM_KEYDOWN:
 	case WM_KEYUP:
 	{
-		uint vk_code = wparam;
+		uint vk_code = (uint)wparam;
 		bool is_down = ((lparam & (1 << 31)) == 0);
 		//bool was_down = ((lparam & (1 << 30)) != 0);
 
@@ -82,7 +90,7 @@ window_callback(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		/* If capture typing... */
 		if (gp_g2d_input->allow_typing)
 		{
-			window_input_keyboard_event_type(wparam);
+			window_input_keyboard_event_type((char)wparam);
 		}
 	} break;
 
@@ -113,7 +121,7 @@ window_callback(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 			const int x = GET_X_LPARAM(lparam);
 			const int y = gp_g2d_window->height - GET_Y_LPARAM(lparam);  /* flip y-axis */
 
-			if (x < 0 || y < 0 || x >= gp_g2d_window->width || y >= gp_g2d_window->height)
+			if (x < 0 || y < 0 || (uint)x >= gp_g2d_window->width || (uint)y >= gp_g2d_window->height)
 			{
 				/* Outside window */
 				if (wparam & (MK_LBUTTON | MK_RBUTTON))
@@ -145,7 +153,13 @@ window_callback(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	case WM_RBUTTONDOWN:
 	case WM_MBUTTONDOWN:
 	{
-		const uint vk_code = wparam;
+		const uint vk_code = (uint)wparam;
+
+		if (!gp_g2d_window->has_focus)
+		{
+			(void)SetFocus(hwnd);
+		}
+
 		window_input_mouse_event_click(vk_code, true);
 	} break;
 
@@ -164,5 +178,5 @@ window_callback(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	} break;
 	}
 
-	return DefWindowProcA(hwnd, msg, wparam, lparam);;
+	return DefWindowProcA(hwnd, msg, wparam, lparam);
 }

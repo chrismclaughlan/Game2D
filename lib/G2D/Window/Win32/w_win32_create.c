@@ -1,15 +1,18 @@
-#include "../headers/w_win32.h"
-#include "headers/win32_internal.h"
+#include "../w_win32.h"
+#include "headers/w_win32_internal.h"
 
 #include <stdio.h>
 #include <hidusage.h>
 //#include <direct.h>
+#include <direct.h>
 #include <tchar.h>
+#include <stdlib.h>
 
 /**
  * Changes working directory to that containing the executable.
  */
-static bool window_working_dir_change()
+static bool 
+window_working_dir_change()
 {
 	TCHAR path_buffer[MAX_PATH] = { 0 };
 
@@ -27,7 +30,7 @@ static bool window_working_dir_change()
 	}
 
 	/* Cut off executable from path */
-	for (int i = _tcslen(path_buffer); i > 0; i--)
+	for (int i = (int)_tcslen(path_buffer); i > 0; i--)
 	{
 		if (path_buffer[i] == 92)  /* 92 = '\' */
 		{
@@ -46,7 +49,8 @@ static bool window_working_dir_change()
 	return true;
 }
 
-bool window_create(HINSTANCE hInstance, uint window_width, uint window_height, char* window_name)
+bool 
+w_win32_create(HINSTANCE hInstance, uint window_width, uint window_height, char* window_name)
 {
 	if (!window_working_dir_change())
 	{
@@ -67,11 +71,13 @@ bool window_create(HINSTANCE hInstance, uint window_width, uint window_height, c
 		return false;
 	}
 
+	gp_g2d_window->hinstance = hInstance;
+
 	/* Register class */
 	WNDCLASSEX window_class = { 0 };
 	window_class.cbSize = sizeof(window_class);
 	window_class.style = CS_OWNDC;
-	window_class.lpfnWndProc = window_callback;
+	window_class.lpfnWndProc = w_win32_callback;
 	window_class.cbClsExtra = 0;
 	window_class.cbWndExtra = 0;
 	window_class.hInstance = hInstance;
@@ -79,10 +85,14 @@ bool window_create(HINSTANCE hInstance, uint window_width, uint window_height, c
 	window_class.hCursor = NULL;
 	window_class.hbrBackground = NULL;
 	window_class.lpszMenuName = NULL;
-	window_class.lpszClassName = "GameWindowClass";  /* TODO: name */
+	window_class.lpszClassName = G2D_WINDOW_CLASS_NAME;
 	window_class.hIconSm = NULL;
 
-	RegisterClassEx(&window_class);
+	if (!RegisterClassEx(&window_class))
+	{
+		MessageBox(NULL, "G2D Error: Failed to register window class (WNDCLASSEX).", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return false;
+	}
 
 	/* Window sizing */
 	RECT rect;
@@ -93,11 +103,7 @@ bool window_create(HINSTANCE hInstance, uint window_width, uint window_height, c
 
 	// WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU
 	// WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME
-	if (!AdjustWindowRect(&rect, WS_VISIBLE | WS_OVERLAPPEDWINDOW, FALSE))
-	{
-		LOG_ERROR("AdjustWindowRect(): %s\n", (char*)GetLastError());
-		return false;
-	}
+	(void)AdjustWindowRect(&rect, WS_VISIBLE | WS_OVERLAPPEDWINDOW, FALSE);
 
 	gp_g2d_window->hwnd = CreateWindowEx(
 		0,                                  // Optional window styles.
@@ -115,7 +121,7 @@ bool window_create(HINSTANCE hInstance, uint window_width, uint window_height, c
 	);
 	if (gp_g2d_window->hwnd == NULL)
 	{
-		LOG_ERROR("CreateWindowEx(): %s\n", (char*)GetLastError());
+		MessageBox(NULL, "G2D Error: Failed to create window (HWND).", "ERROR", MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
 
@@ -127,15 +133,27 @@ bool window_create(HINSTANCE hInstance, uint window_width, uint window_height, c
 	Rid[0].hwndTarget = gp_g2d_window->hwnd;
 	RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
 
-	(void) ShowWindow(gp_g2d_window->hwnd, SW_SHOWDEFAULT);
-
 	if (!(gp_g2d_window->hdc = GetDC(gp_g2d_window->hwnd)))
 	{
-		LOG_ERROR("GetDC(): %s\n", (char*)GetLastError());
+		MessageBox(NULL, "G2D Error: Failed to get handle for device context (HDC).", "ERROR", MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
 
 	//LOG_DEBUG("WINDOW CREATE width: %d height %d\n", render_buffer.width, render_buffer.height)
+
+	(void)atexit(w_win32_destroy);  /* TODO */
+
+
+	if (!w_win32_sound_manager_init())
+	{
+		LOG_ERROR("w_win32_sound_manager()\n");
+	}
+
+
+	(void)ShowWindow(gp_g2d_window->hwnd, SW_SHOWDEFAULT);
+	(void)SetForegroundWindow(gp_g2d_window->hwnd);
+
+	w_win32_focus_set();
 
 	return true;
 }

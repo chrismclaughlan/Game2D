@@ -19,14 +19,14 @@ case vk:\
 #define TYPING_ALLOWED_CHARS "0123456789abcdefghijklmnopqrstuvwxyz!£$*(){}[],.<>/?\;'#:@~`¬"
 
 
-struct Button
+struct G2D_Window_Button
 {
 	bool is_down;
 	bool changed;
 };
 
 
-struct G2D_Input
+struct G2D_Window_Input
 {
 	/* Mouse */
 	bool mouse_raw_input;  /* Changes behaviour of mouse_pos */
@@ -35,7 +35,7 @@ struct G2D_Input
 	bool mouse_in_window;
 
 	/* Keyboard */
-	struct Button buttons[BUTTON_COUNT];
+	struct G2D_Window_Button buttons[BUTTON_COUNT];
 
 	bool allow_typing;
 	uint type_index;
