@@ -35,28 +35,54 @@ struct BITMAPINFOHEADER
 
 
 static uint8* 
-w_win32_load_bmp(char* filename, struct BITMAPINFOHEADER* bm_info_header)
+load_bmp(char* filename, char** possible_paths, int possible_paths_size, struct BITMAPINFOHEADER* bm_info_header)
 {
-	FILE* pfile;
+	FILE* pfile = NULL;
 	//uint8* pbm_data;
 	size_t num_read;
 	struct BITMAPFILEHEADER bm_file_header;
 
-	/* Read in binary mode */
-	errno_t err = fopen_s(&pfile, filename, "rb");
-	if (err != 0 || pfile == NULL)
+	/* Attempt to find resource in given paths (first has priority) */
+	for (int i = 0; i < possible_paths_size; i++)
 	{
-		/* Try get current working dir */
-		TCHAR path_buffer[MAX_PATH] = { 0 };
-
-		/* Get path to .exe directory*/
-		if (GetCurrentDirectory(MAX_PATH, path_buffer) != 0)
+		char path[MAX_PATH];
+		path[0] = 0;
+		if (strcat_s(path, MAX_PATH, possible_paths[i]) != 0)
 		{
-			_ftprintf(stderr, _T("Tried looking in: '%s'\n"), path_buffer);
+			LOG_ERROR("Error loading bmp '%s': strcat_s() [1]\n", filename);
+			return NULL;
+		}
+		if (strcat_s(path, MAX_PATH, filename) != 0)
+		{
+			LOG_ERROR("Error loading bmp '%s': strcat_s() [2]\n", filename);
+			return NULL;
 		}
 
-		LOG_ERROR("Error loading bmp '%s': Failed to open file\n", filename);
+		/* Read in binary mode */
+		errno_t err = fopen_s(&pfile, path, "rb");
+		if (err != 0)
+		{
+			/* Try get current working dir */
+			TCHAR path_buffer[MAX_PATH] = { 0 };
 
+			/* Get path to .exe directory*/
+			if (GetCurrentDirectory(MAX_PATH, path_buffer) != 0)
+			{
+				_ftprintf(stderr, _T("load_bmp: Tried looking for '%s' in %s\n"), filename, path_buffer);
+			}
+
+			//LOG_ERROR("Error loading bmp '%s': Failed to open file\n", filename);
+			//return NULL;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	if (pfile == NULL)
+	{
+		LOG_ERROR("Error loading bmp '%s': Failed to open file\n", filename);
 		return NULL;
 	}
 
@@ -118,7 +144,7 @@ w_win32_load_bmp(char* filename, struct BITMAPINFOHEADER* bm_info_header)
 
 
 struct G2D_Sprite_Image* 
-w_win32_sprite_image_load(char* filename)
+w_win32_sprite_image_load(char* filename, char** possible_paths, int possible_paths_size)
 {
 	struct G2D_Sprite_Image* sprite_image;
 	struct BITMAPINFOHEADER bm_info_header;
@@ -132,7 +158,7 @@ w_win32_sprite_image_load(char* filename)
 		return NULL;
 	}
 
-	sprite_image->pdata = w_win32_load_bmp(filename, &bm_info_header);
+	sprite_image->pdata = load_bmp(filename, possible_paths, possible_paths_size, &bm_info_header);
 	if (sprite_image->pdata == NULL)
 	{
 		LOG_ERROR("File '%s' could not be read\n", filename);

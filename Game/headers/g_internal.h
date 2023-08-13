@@ -36,6 +36,8 @@ enum Game_Mode g_game_mode;
 
 struct Vec2f* gp_selection_pos_1;
 struct Vec2f* gp_selection_pos_2;
+struct Object* gp_selection_object;
+struct Vec2f gp_selection_object_start;
 
 
 /* - - - - - - - - Player - - - - - - - - */

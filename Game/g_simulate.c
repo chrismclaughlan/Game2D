@@ -15,7 +15,7 @@ static void game_bullet_holes_place(struct Vec2f vf)
 
 static void game_bullet_holes_render()
 {
-	for (int i = 0; i < sizeof(g_bullet_holes) && i < g_bullet_holes_index; i++)
+	for (int i = 0; i < (sizeof g_bullet_holes) / sizeof(*g_bullet_holes) && i < g_bullet_holes_index; i++)
 	{
 		r_draw_circle_f(SOLID_COLOUR(0x0), g_bullet_holes[i], 0.005f, 0.005f);
 	}
@@ -34,8 +34,6 @@ void game_simulate()
 
 	if (PRESSED(BUTTON_1)) g_game_mode = GM_BUILD;
 	if (PRESSED(BUTTON_2)) g_game_mode = GM_PLAY;
-	if (IS_DOWN(BUTTON_3)) colour_background = SOLID_COLOUR(0x0000ff);
-	if (IS_DOWN(BUTTON_4)) colour_background = SOLID_COLOUR(0xffffff);
 
 	switch (g_game_mode)
 	{
@@ -45,28 +43,53 @@ void game_simulate()
 		{
 			gp_selection_pos_1 = NULL;
 			gp_selection_pos_2 = NULL;
+
+			/* TODO create new object when moving polygon (delete etc.) */
+			gp_selection_object->offset_x = 0.0f;
+			gp_selection_object->offset_y = 0.0f;
+			gp_selection_object = NULL;
 		}
 		else if (PRESSED(BUTTON_LMOUSE))
 		{
 			/* does this intersect with line circle? */
 			for (struct Object* object = gp_scene_objects_head; object != NULL; object = object->next)
 			{
-				for (struct Line* line = object->lines_start; line != NULL; line = line->next)
+				if (!object->is_moveable)
 				{
-					if (game_collision_is_in_circle(mouse_pos, line->start, BUILD_SELECTION_CIRCLE_RADIUS))
+					continue;
+				}
+
+				if (game_collision_is_inside_polygon(mouse_pos, object))
+				{
+					/* Move object entirely */
+					LOG_DEBUG("clicked inside object\n");
+					gp_selection_object = object;
+					gp_selection_object_start = mouse_pos;
+					break;
+				}
+				else
+				{
+					for (struct Line* line = object->lines_start; line != NULL; line = line->next)
 					{
-						if (PRESSED(BUTTON_LMOUSE))
+						if (game_collision_is_in_circle(mouse_pos, line->start, BUILD_SELECTION_CIRCLE_RADIUS))
 						{
-							//scene_objects[i].lines[j].points[0] = pos;
-							//scene_objects[i].lines[(j - 1 < 0) ? scene_objects[i].lines_size - 1 : j - 1].points[1] = pos;
-							gp_selection_pos_1 = &line->start;
-							if (line->prev)
+							if (PRESSED(BUTTON_LMOUSE))
 							{
-								gp_selection_pos_2 = &line->prev->end;
-							}
-							else
-							{
-								gp_selection_pos_2 = &object->lines_end->end;
+
+					/* Move object vertex */
+
+								//scene_objects[i].lines[j].points[0] = pos;
+								//scene_objects[i].lines[(j - 1 < 0) ? scene_objects[i].lines_size - 1 : j - 1].points[1] = pos;
+								gp_selection_pos_1 = &line->start;
+								if (line->prev)
+								{
+									gp_selection_pos_2 = &line->prev->end;
+								}
+								else
+								{
+									gp_selection_pos_2 = &object->lines_end->end;
+								}
+								break;
 							}
 						}
 					}
@@ -128,6 +151,11 @@ void game_simulate()
 		if (gp_selection_pos_1 && gp_selection_pos_2) {
 			*gp_selection_pos_1 = mouse_pos;
 			*gp_selection_pos_2 = mouse_pos;
+		}
+
+		if (gp_selection_object)
+		{
+			game_scene_object_move(gp_selection_object, gp_selection_object_start, mouse_pos);
 		}
 	} break;
 	case GM_PLAY:
