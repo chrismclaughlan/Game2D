@@ -6,10 +6,10 @@
 
 Stopped work on porject in 2020. Here are some images to show what was acheived.
 
-![WIP Line-of-sight from beginning of project](screenshot_1.png)
-![Another WUP Line-of-sight showcase that dislplays the workings of line intersections](screenshot_2.png)
-![Characters with hitboxes](screenshot_3.png)
-![Characters without hitboxes](screenshot_4.png)
+![WIP Line-of-sight from beginning of project](Screenshot_1.png)
+![Another WUP Line-of-sight showcase that dislplays the workings of line intersections](Screenshot_2.png)
+![Characters with hitboxes](Screenshot_3.png)
+![Characters without hitboxes](Screenshot_4.png)
 
 ===========================
 
