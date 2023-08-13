@@ -6,9 +6,16 @@
 
 Stopped work on porject in 2020. Here are some images to show what was acheived.
 
-![WIP Line-of-sight from beginning of project](Screenshot_1.png)
-![Another WUP Line-of-sight showcase that dislplays the workings of line intersections](Screenshot_2.png)
+First stages of line-of-sight in game: Screen is blue where the player can see, and black where their line of sight is blocked.
+![Line of sight where screen is blue where the player can see, and black where their line of sight is blocked](Screenshot_1.png)
+
+Another early stage of development that displays line segments that intersect with objects in the game to find line of sight.
+![Line segments that intersect with objects in the game to find line of sight](Screenshot_2.png)
+
+The player (Blue) and emeny (red) hitboxes (for object collission detection and for damage calculations).
 ![Characters with hitboxes](Screenshot_3.png)
+
+The player and emenies within the game.
 ![Characters without hitboxes](Screenshot_4.png)
 
 ===========================
