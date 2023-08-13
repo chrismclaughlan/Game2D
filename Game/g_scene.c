@@ -26,8 +26,27 @@ game_scene_line_destroy(struct Line* line)
 	(void)free(line);
 }
 
+void 
+game_scene_object_move(struct Object* object, struct Vec2f start, struct Vec2f end)
+{
+	const float diff_x = end.x - start.x;
+	const float diff_y = end.y - start.y;
+
+	object->offset_x = diff_x;
+	object->offset_y = diff_y;
+
+	//for (struct Line* line = object->lines_start; line != NULL; line = line->next)
+	//{
+	//	line->start.x += diff_x;
+	//	line->start.y += diff_y;
+	//	line->end.x += diff_x;
+	//	line->end.y += diff_y;
+	//}
+}
+
 struct Object* 
-game_scene_object_create(uint32 colour, struct Vec2f* vertexes, int nvertexes, bool is_collidable)
+game_scene_object_create(uint32 colour, struct Vec2f* vertexes, int nvertexes, 
+	bool is_collidable, bool is_moveable)
 {
 	struct Object* object;
 	object = malloc((sizeof *object));
@@ -66,6 +85,9 @@ game_scene_object_create(uint32 colour, struct Vec2f* vertexes, int nvertexes, b
 	object->lines_end = line;
 
 	object->is_collidable = is_collidable;
+	object->is_moveable = is_moveable;
+	object->offset_x = 0.0f;
+	object->offset_y = 0.0f;
 
 	return object;
 }

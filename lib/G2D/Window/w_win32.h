@@ -70,7 +70,7 @@ struct G2D_Sprite
 
 /* Sprite Image */
 
-extern struct G2D_Sprite_Image* w_win32_sprite_image_load(char* filename);
+extern struct G2D_Sprite_Image* w_win32_sprite_image_load(char* filename, char** possible_paths, int possible_paths_size);
 extern void						w_win32_sprite_image_destroy(struct G2D_Sprite_Image* sprite_image);
 
 #endif

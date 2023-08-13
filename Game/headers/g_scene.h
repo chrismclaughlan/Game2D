@@ -25,14 +25,19 @@ struct Object
 	struct Object* next;
 
 	bool is_collidable;
+	bool is_moveable;
+
+	float offset_x;
+	float offset_y;
 };
 
 
 
 struct Line*	game_scene_line_create(uint32 colour, struct Vec2f start, struct Vec2f end);
 void			game_scene_line_destroy(struct Line* line);
-struct Object*	game_scene_object_create(uint32 colour, struct Vec2f* vertexes, int nvertexes, bool is_collidable);
+struct Object*	game_scene_object_create(uint32 colour, struct Vec2f* vertexes, int nvertexes, bool is_collidable, bool is_moveable);
 void			game_scene_object_destroy(struct Object* object);
+void			game_scene_object_move(struct Object* object, struct Vec2f start, struct Vec2f end);
 
 
 

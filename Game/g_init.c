@@ -23,19 +23,24 @@ void game_init()
 
 	/* Game Modes */
 
-	g_game_mode = GM_BUILD;
+	// g_game_mode = GM_BUILD;  // BROKEN
+	g_game_mode = GM_PLAY;
 	gp_selection_pos_1 = NULL;
 	gp_selection_pos_2 = NULL;
+	gp_selection_object = NULL;
 
 
 	/* Load sprite images */
-	gp_sprite_image_soldier = w_win32_sprite_image_load(RESOURCE_PLAYER);
+	//char* resource_dirs[]	;// = (char* []){ "hello", "world" };
+
+	char* resource_dirs[] = { "../resources/", "resources/" };
+	gp_sprite_image_soldier = w_win32_sprite_image_load("soldier.bmp", resource_dirs, sizeof(resource_dirs) / sizeof(*resource_dirs));
 	if (!gp_sprite_image_soldier)
 	{
 		Sleep(5000);
 		exit(1);
 	}
-	gp_sprite_image_enemy = w_win32_sprite_image_load(RESOURCE_ENEMY);
+	gp_sprite_image_enemy = w_win32_sprite_image_load("enemy.bmp", resource_dirs, sizeof(resource_dirs) / sizeof(*resource_dirs));
 	if (!gp_sprite_image_enemy)
 	{
 		Sleep(5000);
@@ -138,7 +143,7 @@ void game_init()
 	vertexes[2].x = +1.0f; vertexes[2].y = +1.0f;
 	vertexes[3].x = +1.0f; vertexes[3].y = -1.0f;
 	gp_scene_objects_head = game_scene_object_create(
-		SOLID_COLOUR(0xF5F5DC), vertexes, sizeof(vertexes) / sizeof(vertexes[0]), false);
+		SOLID_COLOUR(0xF5F5DC), vertexes, sizeof(vertexes) / sizeof(vertexes[0]), false, false);
 	if (!gp_scene_objects_head)
 	{
 		LOG_ERROR("game_scene_object_create()\n");
@@ -153,7 +158,7 @@ void game_init()
 		vertexes[2].x = 0.2f * (float)i; vertexes[2].y = +0.2f * (float)i;
 		vertexes[3].x = 0.2f * (float)i; vertexes[3].y = +0.1f * (float)i;
 		object->next = game_scene_object_create(SOLID_COLOUR(0xF5F5DC),
-			vertexes, sizeof(vertexes) / sizeof(vertexes[0]), true);
+			vertexes, sizeof(vertexes) / sizeof(vertexes[0]), true, true);
 
 		if (!object->next)
 		{

@@ -5,6 +5,11 @@
 ===========================
 
 
+			/* TODO create new object when moving polygon (delete etc.) */
+			
+			remove error checking code from main loop -> keep contained inside functions and handle errors
+
+
 https://www.youtube.com/watch?v=443UNeGrFoM&list=PLZC-59zhyb1JS3uB-TgH2IVbJmYUNpX2n&index=5&t=2276s
 
 name vars:
